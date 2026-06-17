@@ -1,1283 +1,430 @@
-<div align="center">
+# DeepCode
 
-<table style="border: none; margin: 0 auto; padding: 0; border-collapse: collapse;">
-<tr>
-<td align="center" style="vertical-align: middle; padding: 10px; border: none; width: 250px;">
-  <img src="assets/logo.png" alt="DeepCode Logo" width="200" style="margin: 0; padding: 0; display: block;"/>
-</td>
-<td align="left" style="vertical-align: middle; padding: 10px 0 10px 30px; border: none;">
-  <pre style="font-family: 'Courier New', monospace; font-size: 16px; color: #0EA5E9; margin: 0; padding: 0; text-shadow: 0 0 10px #0EA5E9, 0 0 20px rgba(14,165,233,0.5); line-height: 1.2; transform: skew(-1deg, 0deg); display: block;">    ██████╗ ███████╗███████╗██████╗  ██████╗ ██████╗ ██████╗ ███████╗
-    ██╔══██╗██╔════╝██╔════╝██╔══██╗██╔════╝██╔═══██╗██╔══██╗██╔════╝
-    ██║  ██║█████╗  █████╗  ██████╔╝██║     ██║   ██║██║  ██║█████╗
-    ██║  ██║██╔══╝  ██╔══╝  ██╔═══╝ ██║     ██║   ██║██║  ██║██╔══╝
-    ██████╔╝███████╗███████╗██║     ╚██████╗╚██████╔╝██████╔╝███████╗
-    ╚═════╝ ╚══════╝╚══════╝╚═╝      ╚═════╝ ╚═════╝ ╚═════╝ ╚══════╝</pre>
-</td>
-</tr>
-</table>
+DeepCode는 논문, 요구사항, URL, 대화형 기획 내용을 입력으로 받아 실행 가능한 코드 프로젝트를 생성하는 AI 코드 생성 플랫폼입니다. 웹 UI, CLI, Docker 실행을 모두 지원하며, `nanobot`을 함께 실행하면 Discord 같은 채팅 앱에서 DeepCode 작업을 요청하고 진행 상태를 확인할 수 있습니다.
 
-<div align="center">
-<a href="https://trendshift.io/repositories/14665" target="_blank"><img src="https://trendshift.io/api/badge/repositories/14665" alt="HKUDS%2FDeepCode | Trendshift" style="width: 250px; height: 55px;" width="250" height="55"/></a>
-</div>
+이 저장소의 기본 설정은 Codex/ChatGPT 웹 로그인을 사용합니다. 처음 실행할 때 API 키를 넣지 않고도 설정 화면에서 ChatGPT 계정으로 로그인한 뒤 `codex/gpt-5.5` 계열 모델을 사용할 수 있습니다. OpenAI, Anthropic, OpenRouter, Gemini 같은 API 키 기반 제공자도 계속 지원합니다.
 
-<!-- <img src="https://readme-typing-svg.herokuapp.com?font=Russo+One&size=28&duration=2000&pause=800&color=06B6D4&background=00000000&center=true&vCenter=true&width=800&height=50&lines=%E2%9A%A1+OPEN+AGENTIC+CODING+%E2%9A%A1" alt="DeepCode Tech Subtitle" style="margin-top: 5px; filter: drop-shadow(0 0 12px #06B6D4) drop-shadow(0 0 24px rgba(6,182,212,0.4));"/> -->
+## 주요 기능
 
-# <img src="https://github.com/Zongwei9888/Experiment_Images/raw/43c585dca3d21b8e4b6390d835cdd34dc4b4b23d/DeepCode_images/title_logo.svg" alt="DeepCode Logo" width="32" height="32" style="vertical-align: middle; margin-right: 8px;"/> DeepCode: Open Agentic Coding
+- 논문 PDF, arXiv URL, GitHub URL, 일반 요구사항을 코드 프로젝트로 변환
+- 계획 검토와 추가 질문을 포함한 User-in-Loop 워크플로우
+- 작업 단위 로그와 세션 저장
+- 한국어 UI와 한국어 설정 메시지
+- Codex/ChatGPT 브라우저 로그인 기반 LLM 제공자
+- OpenRouter 모델 검색과 런타임 모델 변경
+- Docker Compose 기반 DeepCode + nanobot 통합 실행
+- Discord, Feishu, Telegram 등 채팅 채널을 통한 원격 작업 요청
 
-### *Advancing Code Generation with Multi-Agent Systems*
-
-<!-- <p align="center">
-  <img src="https://img.shields.io/badge/Version-1.0.0-00d4ff?style=for-the-badge&logo=rocket&logoColor=white" alt="Version">
-
-  <img src="https://img.shields.io/badge/License-MIT-4ecdc4?style=for-the-badge&logo=opensourceinitiative&logoColor=white" alt="License">
-  <img src="https://img.shields.io/badge/AI-Multi--Agent-9b59b6?style=for-the-badge&logo=brain&logoColor=white" alt="AI">
-  <img src="https://img.shields.io/badge/HKU-Data_Intelligence_Lab-f39c12?style=for-the-badge&logo=university&logoColor=white" alt="HKU">
-</p> -->
-<p>
-  <a href="https://github.com/HKUDS/DeepCode/stargazers"><img src='https://img.shields.io/github/stars/HKUDS/DeepCode?color=00d9ff&style=for-the-badge&logo=star&logoColor=white&labelColor=1a1a2e' /></a>
-  <a href='https://arxiv.org/abs/2512.07921'><img src="https://img.shields.io/badge/Paper-arXiv-orange?style=for-the-badge&logo=arxiv&logoColor=white&labelColor=1a1a2e"></a>
-  <img src="https://img.shields.io/badge/🐍Python-3.13-4ecdc4?style=for-the-badge&logo=python&logoColor=white&labelColor=1a1a2e">
-  <!-- <a href="https://pypi.org/project/deepcode-hku/"><img src="https://img.shields.io/pypi/v/deepcode-hku.svg?style=for-the-badge&logo=pypi&logoColor=white&labelColor=1a1a2e&color=ff6b6b"></a> -->
-</p>
-<p>
-  <a href="https://github.com/HKUDS/.github/blob/main/profile/README.md"><img src="https://img.shields.io/badge/Feishu-Group-E9DBFC?style=flat&logo=feishu&logoColor=white" alt="Feishu"></a>
-  <a href="https://github.com/HKUDS/.github/blob/main/profile/README.md"><img src="https://img.shields.io/badge/WeChat-Group-C5EAB4?style=flat&logo=wechat&logoColor=white" alt="WeChat"></a>
-</p>
-<div align="center">
-  <div style="width: 100%; height: 2px; margin: 20px 0; background: linear-gradient(90deg, transparent, #00d9ff, transparent);"></div>
-</div>
-
-<div align="center">
-  <a href="#-quick-start" style="text-decoration: none;">
-    <img src="https://img.shields.io/badge/Quick%20Start-Get%20Started%20Now-00d9ff?style=for-the-badge&logo=rocket&logoColor=white&labelColor=1a1a2e">
-  </a>
-</div>
-
-<div align="center" style="margin-top: 10px;">
-  <a href="README.md">
-    <img src="https://img.shields.io/badge/English-00d4ff?style=for-the-badge&logo=readme&logoColor=white&labelColor=1a1a2e" alt="English">
-  </a>
-  <a href="README_ZH.md">
-    <img src="https://img.shields.io/badge/中文-00d4ff?style=for-the-badge&logo=readme&logoColor=white&labelColor=1a1a2e" alt="中文">
-  </a>
-</div>
-
-### 🖥️ **Interface Showcase**
-
-<table align="center" width="100%" style="border: none; border-collapse: collapse; margin: 30px 0;">
-<tr>
-<td width="50%" align="center" style="vertical-align: top; padding: 20px;">
-
-#### 🖥️ **CLI Interface**
-**Terminal-Based Development**
-
-<div align="center">
-
-  <img src="https://github.com/Zongwei9888/Experiment_Images/blob/8882a7313c504ca97ead6e7b36c51aa761b6a4f3/DeepCode_images/CLI.gif" alt="CLI Interface Demo" width="100%" style="border-radius: 10px; box-shadow: 0 8px 20px rgba(45,55,72,0.3); margin: 15px 0;"/>
-
-  <div style="background: linear-gradient(135deg, #2D3748 0%, #4A5568 100%); border-radius: 12px; padding: 15px; margin: 15px 0; color: white;">
-    <strong>🚀 Advanced Terminal Experience</strong><br/>
-    <small>⚡ Fast command-line workflow<br/>🔧 Developer-friendly interface<br/>📊 Real-time progress tracking</small>
-  </div>
-
-  *Professional terminal interface for advanced users and CI/CD integration*
-</div>
-
-</td>
-<td width="50%" align="center" style="vertical-align: top; padding: 20px;">
-
-#### 🌐 **Web Interface**
-**Visual Interactive Experience**
-
-<div align="center">
-
-  <img src="https://github.com/Zongwei9888/Experiment_Images/raw/8882a7313c504ca97ead6e7b36c51aa761b6a4f3/DeepCode_images/UI.gif" alt="Web Interface Demo" width="100%" style="border-radius: 10px; box-shadow: 0 8px 20px rgba(14,165,233,0.3); margin: 15px 0;"/>
-
-  <div style="background: linear-gradient(135deg, #0EA5E9 0%, #00D4FF 100%); border-radius: 12px; padding: 15px; margin: 15px 0; color: white;">
-    <strong>🎨 Modern Web Dashboard</strong><br/>
-    <small>🖱️ Intuitive drag-and-drop<br/>📱 Responsive design<br/>🎯 Visual progress tracking</small>
-  </div>
-
-  *Beautiful web interface with streamlined workflow for all skill levels*
-</div>
-
-</td>
-</tr>
-</table>
-
----
-
-<div align="center">
-
-### 🎬 **Introduction Video**
-
-<div style="margin: 20px 0;">
-  <a href="https://youtu.be/PRgmP8pOI08" target="_blank">
-    <img src="https://img.youtube.com/vi/PRgmP8pOI08/maxresdefault.jpg"
-         alt="DeepCode Introduction Video"
-         width="75%"
-         style="border-radius: 12px; box-shadow: 0 8px 25px rgba(0,0,0,0.15); transition: transform 0.3s ease;"/>
-  </a>
-</div>
-
-*🎯 **Watch our complete introduction** - See how DeepCode transforms research papers and natural language into production-ready code*
-
-<p>
-  <a href="https://youtu.be/PRgmP8pOI08" target="_blank">
-    <img src="https://img.shields.io/badge/▶️_Watch_Video-FF0000?style=for-the-badge&logo=youtube&logoColor=white" alt="Watch Video"/>
-  </a>
-</p>
-
-</div>
-
----
-
-
-
-
-> *"Where AI Agents Transform Ideas into Production-Ready Code"*
-
-</div>
-
----
-
-## 📑 Table of Contents
-
-- [📰 News](#-news)
-- [🚀 Key Features](#-key-features)
-- [🏗️ Architecture](#️-architecture)
-- [📊 Experimental Results](#-experimental-results)
-- [🚀 Quick Start](#-quick-start)
-- [🤖 nanobot Integration (Feishu Chatbot)](#-nanobot-integration-feishu-chatbot)
-- [💡 Examples](#-examples)
-  - [🎬 Live Demonstrations](#-live-demonstrations)
-- [⭐ Star History](#-star-history)
-- [📄 License](#-license)
-
-
----
-
-## 📰 News
-
-🧭 **[2026-05-01] OpenRouter model selector, session cleanup & workflow UX hardening**
-
-- 🧠 **OpenRouter model catalog in Settings.** The new UI can now fetch OpenRouter model metadata from `https://openrouter.ai/api/v1/models`, cache it locally, and expose searchable model selectors for the Default, Planning, and Implementation phases. Use exact OpenRouter model ids such as `z-ai/glm-5.1` without editing JSON by hand.
-- 🔄 **Runtime model switching.** Saving model choices from Settings updates `deepcode_config.json` and reloads the in-process LLM runtime so newly started workflows pick up the selected provider/model combination immediately.
-- 🗑️ **Session deletion now performs safe cascade cleanup.** Deleting a session from the UI removes its persistent session store and associated `deepcode_lab/tasks/<task_id>/` workspaces, while preserving shared `uploads/` source files. Sessions with `pending`, `running`, or `waiting_for_input` tasks are blocked with a clear `409 Conflict`.
-- 📊 **More accurate Paper2Code progress.** The frontend now shows backend stage messages and avoids marking intermediate phases as fully "Done" while long LLM work is still running.
-- 🛡️ **Workflow robustness fixes.** Uploads now reject Git LFS pointer files, cancelled tasks stop backend work promptly, stale browser session ids recover cleanly, planner retries fall back to a minimal valid plan when a model defers/tool-calls incorrectly, and document segmentation skips an extra validation LLM call that could stall progress.
-
----
-
-🗂️ **[2026-04-28] Persistent sessions & dual-layer logging**
-
-- 🆕 **Sessions are now persistent.** Every CLI / UI run is automatically attached to a session under `~/.deepcode/sessions/<id>/` (override with `DEEPCODE_SESSIONS_DIR`). Sessions are JSONL — `tail -f session.jsonl` works out of the box. List / inspect / branch them with `python cli/main_cli.py session list|show <id>|new|resume <id>|delete <id>`, or via `GET /api/v1/sessions` from the backend.
-- 🔄 **Resume a previous run** by passing `--session <id>` to the CLI or `session_id` to `POST /api/v1/workflows/paper-to-code` (or `chat-planning`). Backend restarts no longer drop task history; running tasks left over from a crash are surfaced as `interrupted`.
-- 💻 **CLI session UX.** The interactive CLI now supports Cursor-style slash commands: `/resume` opens a numbered session picker, `/new [title]` creates and switches sessions, `/session` shows the active session, and `/help` lists commands. You can also paste inline inputs directly at the menu prompt with `@/path/to/paper.pdf`, `@"C:\path with spaces\paper.pdf"`, or `@https://...`.
-- 📜 **Two-layer structured logging.** A global rotating JSONL lives at `logs/server-YYYYMMDD.jsonl`; per-task logs at `deepcode_lab/tasks/<task_id>/logs/{system,llm,mcp}.jsonl`. Every `loguru.logger` call automatically picks up the active `task_id` via a contextvar — business code did not have to change. Configure via the new `logger.{globalFile,taskFile,llm}` block in `deepcode_config.json`.
-- 📡 **WebSocket log streaming.** Tail one task with `/ws/tasks/{task_id}/logs?channel=llm`, or merge every task in a session via `/ws/sessions/{session_id}/logs`. The legacy `/ws/logs/{session_id}` endpoint that silently ignored its parameter has been removed.
-- 🧹 **Dead code removed.** `utils/simple_llm_logger.py`, `utils/dialogue_logger.py`, and the in-memory `services/session_service.py` implementation are gone (the latter is now a thin re-export of `core.sessions.SessionStore`).
-
----
-
-🛠️ **[2026-04-17] Stability, Windows compatibility & secrets hygiene update**
-
-- 🐛 **Code Implementation no longer crashes** with `name 'LoopDetector' is not defined` — added the missing `LoopDetector`/`ProgressTracker` imports in both `workflows/code_implementation_workflow.py` and `workflows/code_implementation_workflow_index.py`.
-- 🪟 **Windows: `mkdir -p` / `touch` / `rm -rf` / `cp -r` / `mv` now work natively.** `tools/command_executor.py` translates these common Unix file-tree commands via `pathlib`/`shutil` on every platform, eliminating the bug where `cmd.exe` would create a literal `-p` directory and stall the workflow.
-- 🚀 **Removed Brave Search end-to-end.** All Python code, MCP server config, Dockerfile pre-installs, nanobot integration and docs are scrubbed of `brave`/`BRAVE_API_KEY`/`WebSearchTool`. Web fetching now relies entirely on the built-in `fetch` MCP server.
-- 🔌 **OpenAI-compatible providers documented.** New `Quick Start → Configuration` snippet shows how to point the `openai`/`openrouter` blocks at Poe (`https://api.poe.com/v1`), OpenRouter, or Alibaba DashScope, plus how to set `agents.defaults.model` / `agents.planning.model` / `agents.implementation.model` (e.g. `openai/gpt-5.4`).
-- 🔐 **Secrets hygiene.** All YAML config has been collapsed into a single `deepcode_config.json` (nanobot-style), and `.gitignore` now ignores it alongside `secrets.json`, `*credentials*.json`, `.env`, `.env.*` (with `*.env.example` whitelisted).
-- 📝 **Launch table fixed.** `deepcode` (no flags) actually starts Docker mode — the README now shows `deepcode --local` for the no-Docker path and adds explicit Troubleshooting rows for "Docker is installed but not running", Windows GBK encoding, and the issues fixed above.
-- 🧹 **Misc:** auto-create `logs/` directory so JSONL logging never fails on a fresh checkout, replace bare `except:` with `except Exception:` in `agent_orchestration_engine.py` (Ruff E722), `command_executor` MCP tool descriptions now embed the host OS so the LLM picks compatible commands.
-
----
-
-🎉 **[2026-02] nanobot ✖️ DeepCode. Just chat naturally with openclaw/nanobot to handle your coding tasks:**
-
-<div align="center">
-<table><tr>
-<td align="center"><a href="https://github.com/HKUDS/DeepCode"><img src="./assets/logo.png" alt="DeepCode" height="60"/></a></td>
-<td align="center"><h2>✦</h2></td>
-<td align="center"><a href="https://github.com/HKUDS/nanobot"><img src="./assets/nanobot.png" alt="nanobot" height="60"/></a></td>
-</tr></table>
-</div>
-
-- [nanobot](https://github.com/HKUDS/nanobot) nanobot now powers your agentic coding & engineering! 🤖💻
-- Step away from your laptop — make vibe coding even more vibe! Code directly from your phone! 📱✨
-- One-command deploy: `./nanobot/run_nanobot.sh` → **[Setup Guide →](#-nanobot-integration-feishu-chatbot)**
-
-<div align="center">
-<table width="100%"><tr>
-<td width="50%" align="center">
-  <img src="./assets/IMG_8098.jpeg" alt="Feishu Chat Example 1" width="95%" style="border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.2);"/>
-</td>
-<td width="50%" align="center">
-  <img src="./assets/IMG_8099.jpeg" alt="Feishu Chat Example 2" width="95%" style="border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.2);"/>
-</td>
-</tr></table>
-<sub><em>Feishu Bot in Action — Natural language → Full code generation with setup instructions</em></sub>
-</div>
-
----
-
-🎉 **[2026-02] New Web UI Experience Upgrade!**
-
-- 🔄 **User-in-Loop Interaction**: Support real-time user interaction during workflows - AI asks clarifying questions directly in the chat
-- 💬 **Inline Interaction Design**: Interaction prompts appear naturally within the chat flow for a seamless experience
-- 🚀 **One-Click Launch**: Simply run `deepcode` to start the new UI (cross-platform: Windows/macOS/Linux)
-- 🔧 **Improved Process Management**: Enhanced service start/stop mechanism with automatic port cleanup
-- 📡 **WebSocket Real-time Communication**: Fixed message loss issues, ensuring proper interaction state synchronization
-
-<div align="center">
-  <img src="./assets/NewUI.png" alt="DeepCode New UI" width="85%" style="border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.15);" />
-  <br/>
-  <sub><em>DeepCode New Web UI - Modern React-based Interface</em></sub>
-</div>
-
----
-
-🎉 **[2025-10-28] DeepCode Achieves SOTA on PaperBench!**
-
-DeepCode sets new benchmarks on OpenAI's PaperBench Code-Dev across all categories:
-
-- 🏆 **Surpasses Human Experts**: **75.9%** (DeepCode) vs Top Machine Learning PhDs 72.4% (+3.5%).
-- 🥇 **Outperforms SOTA Commercial Code Agents**: **84.8%** (DeepCode) vs Leading Commercial Code Agents (+26.1%) (Cursor, Claude Code, and Codex).
-- 🔬 **Advances Scientific Coding**: **73.5%** (DeepCode) vs PaperCoder 51.1% (+22.4%).
-- 🚀 **Beats LLM Agents**: **73.5%** (DeepCode) vs best LLM frameworks 43.3% (+30.2%).
-
----
-
-## 🚀 Key Features
-
-<br/>
-
-<table align="center" width="100%" style="border: none; table-layout: fixed;">
-<tr>
-<td width="30%" align="center" style="vertical-align: top; padding: 20px;">
-
-<div style="height: 80px; display: flex; align-items: center; justify-content: center;">
-<h3 style="margin: 0; padding: 0;">🚀 <strong>Paper2Code</strong></h3>
-</div>
-
-<div align="center" style="margin: 15px 0;">
-  <img src="https://img.shields.io/badge/ALGORITHM-IMPLEMENTATION-ff6b6b?style=for-the-badge&logo=algorithm&logoColor=white" alt="Algorithm Badge" />
-</div>
-
-<div style="height: 80px; display: flex; align-items: center; justify-content: center;">
-<p align="center"><strong>Automated Implementation of Complex Algorithms</strong></p>
-</div>
-
-<div style="height: 60px; display: flex; align-items: center; justify-content: center;">
-<p align="center">Effortlessly converts complex algorithms from research papers into <strong>high-quality</strong>, <strong>production-ready</strong> code, accelerating algorithm reproduction.</p>
-</div>
-
-
-
-</td>
-<td width="30%" align="center" style="vertical-align: top; padding: 20px;">
-
-<div style="height: 80px; display: flex; align-items: center; justify-content: center;">
-<h3 style="margin: 0; padding: 0;">🎨 <strong>Text2Web</strong></h3>
-</div>
-
-<div align="center" style="margin: 15px 0;">
-  <img src="https://img.shields.io/badge/FRONTEND-DEVELOPMENT-4ecdc4?style=for-the-badge&logo=react&logoColor=white" alt="Frontend Badge" />
-</div>
-
-<div style="height: 80px; display: flex; align-items: center; justify-content: center;">
-<p align="center"><strong>Automated Front-End Web Development</strong></p>
-</div>
-
-<div style="height: 60px; display: flex; align-items: center; justify-content: center;">
-<p align="center">Translates plain textual descriptions into <strong>fully functional</strong>, <strong>visually appealing</strong> front-end web code for rapid interface creation.</p>
-</div>
-
-
-
-</td>
-<td width="30%" align="center" style="vertical-align: top; padding: 20px;">
-
-<div style="height: 80px; display: flex; align-items: center; justify-content: center;">
-<h3 style="margin: 0; padding: 0;">⚙️ <strong>Text2Backend</strong></h3>
-</div>
-
-<div align="center" style="margin: 15px 0;">
-  <img src="https://img.shields.io/badge/BACKEND-DEVELOPMENT-9b59b6?style=for-the-badge&logo=server&logoColor=white" alt="Backend Badge" />
-</div>
-
-<div style="height: 80px; display: flex; align-items: center; justify-content: center;">
-<p align="center"><strong>Automated Back-End Development</strong></p>
-</div>
-
-<div style="height: 60px; display: flex; align-items: center; justify-content: center;">
-<p align="center">Generates <strong>efficient</strong>, <strong>scalable</strong>, and <strong>feature-rich</strong> back-end code from simple text inputs, streamlining server-side development.</p>
-</div>
-
-
-
-</td>
-</tr>
-</table>
-
-<br/>
-
----
-
-## 📊 Experimental Results
-
-<div align="center">
-    <img src='./assets/result_main02.jpg' /><br>
-</div>
-<br/>
-
-We evaluate **DeepCode** on the [*PaperBench*](https://openai.com/index/paperbench/) benchmark (released by OpenAI), a rigorous testbed requiring AI agents to independently reproduce 20 ICML 2024 papers from scratch. The benchmark comprises 8,316 gradable components assessed using SimpleJudge with hierarchical weighting.
-
-Our experiments compare DeepCode against four baseline categories: **(1) Human Experts**, **(2) State-of-the-Art Commercial Code Agents**, **(3) Scientific Code Agents**, and **(4) LLM-Based Agents**.
-
-### ① 🧠 Human Expert Performance (Top Machine Learning PhD)
-
-**DeepCode: 75.9% vs. Top Machine Learning PhD: 72.4% (+3.5%)**
-
-DeepCode achieves **75.9%** on the 3-paper human evaluation subset, **surpassing the best-of-3 human expert baseline (72.4%) by +3.5 percentage points**. This demonstrates that our framework not only matches but exceeds expert-level code reproduction capabilities, representing a significant milestone in autonomous scientific software engineering.
-
-### ② 💼 State-of-the-Art Commercial Code Agents
-
-**DeepCode: 84.8% vs. Best Commercial Agent: 58.7% (+26.1%)**
-
-On the 5-paper subset, DeepCode substantially outperforms leading commercial coding tools:
-- Cursor: 58.4%
-- Claude Code: 58.7%
-- Codex: 40.0%
-- **DeepCode: 84.8%**
-
-This represents a **+26.1% improvement** over the leading commercial code agent. All commercial agents utilize Claude Sonnet 4.5 or GPT-5 Codex-high, highlighting that **DeepCode's superior architecture**—rather than base model capability—drives this performance gap.
-
-### ③ 🔬 Scientific Code Agents
-
-**DeepCode: 73.5% vs. PaperCoder: 51.1% (+22.4%)**
-
-Compared to PaperCoder (**51.1%**), the state-of-the-art scientific code reproduction framework, DeepCode achieves **73.5%**, demonstrating a **+22.4% relative improvement**. This substantial margin validates our multi-module architecture combining planning, hierarchical task decomposition, code generation, and iterative debugging over simpler pipeline-based approaches.
-
-### ④ 🤖 LLM-Based Agents
-
-**DeepCode: 73.5% vs. Best LLM Agent: 43.3% (+30.2%)**
-
-DeepCode significantly outperforms all tested LLM agents:
-- Claude 3.5 Sonnet + IterativeAgent: 27.5%
-- o1 + IterativeAgent (36 hours): 42.4%
-- o1 BasicAgent: 43.3%
-- **DeepCode: 73.5%**
-
-The **+30.2% improvement** over the best-performing LLM agent demonstrates that sophisticated agent scaffolding, rather than extended inference time or larger models, is critical for complex code reproduction tasks.
-
----
-
-### 🎯 **Autonomous Self-Orchestrating Multi-Agent Architecture**
-
-**The Challenges**:
-
-- 📄 **Implementation Complexity**: Converting academic papers and complex algorithms into working code requires significant technical effort and domain expertise
-
-- 🔬 **Research Bottleneck**: Researchers spend valuable time implementing algorithms instead of focusing on their core research and discovery work
-
-- ⏱️ **Development Delays**: Product teams experience long wait times between concept and testable prototypes, slowing down innovation cycles
-
-- 🔄 **Repetitive Coding**: Developers repeatedly implement similar patterns and functionality instead of building on existing solutions
-
-**DeepCode** addresses these workflow inefficiencies by providing reliable automation for common development tasks, streamlining your development workflow from concept to code.
-
-<div align="center">
+## 구조
 
 ```mermaid
 flowchart LR
-    A["📄 Research Papers<br/>💬 Text Prompts<br/>🌐 URLs & Document<br/>📎 Files: PDF, DOC, PPTX, TXT, HTML"] --> B["🧠 DeepCode<br/>Multi-Agent Engine"]
-    B --> C["🚀 Algorithm Implementation <br/>🎨 Frontend Development <br/>⚙️ Backend Development"]
+    User["사용자"] --> UI["DeepCode 웹 UI 또는 CLI"]
+    UI --> Backend["FastAPI 백엔드"]
+    Backend --> Runtime["DeepCode 에이전트 런타임"]
+    Runtime --> LLM["Codex/ChatGPT 또는 API 키 기반 LLM"]
+    Runtime --> Workspace["deepcode_lab 작업공간"]
 
-    style A fill:#ff6b6b,stroke:#c0392b,stroke-width:2px,color:#000
-    style B fill:#00d4ff,stroke:#0984e3,stroke-width:3px,color:#000
-    style C fill:#00b894,stroke:#00a085,stroke-width:2px,color:#000
+    Discord["Discord"] --> Nanobot["nanobot Gateway"]
+    Nanobot --> DeepCodeAPI["DeepCode API"]
+    DeepCodeAPI --> Backend
 ```
 
-</div>
+## 요구 사항
 
----
+- Python 3.11 이상 권장
+- Node.js 18 이상
+- Docker Desktop, Docker 실행 모드를 사용할 경우
+- Codex/ChatGPT 웹 로그인 사용 시 브라우저 접근 가능 환경
+- Discord 연동 시 Discord Developer Portal 접근 권한과 서버 관리자 또는 봇 초대 권한
 
-## 🏗️ Architecture
+## 빠른 시작
 
-### 📊 **System Overview**
+### 1. 저장소 준비
 
-**DeepCode** is an AI-powered development platform that automates code generation and implementation tasks. Our multi-agent system handles the complexity of translating requirements into functional, well-structured code, allowing you to focus on innovation rather than implementation details.
-
-🎯 **Technical Capabilities**:
-
-🧬 **Research-to-Production Pipeline**<br>
-Multi-modal document analysis engine that extracts algorithmic logic and mathematical models from academic papers. Generates optimized implementations with proper data structures while preserving computational complexity characteristics.
-
-🪄 **Natural Language Code Synthesis**<br>
-Context-aware code generation using fine-tuned language models trained on curated code repositories. Maintains architectural consistency across modules while supporting multiple programming languages and frameworks.
-
-⚡ **Automated Prototyping Engine**<br>
-Intelligent scaffolding system generating complete application structures including database schemas, API endpoints, and frontend components. Uses dependency analysis to ensure scalable architecture from initial generation.
-
-💎 **Quality Assurance Automation**<br>
-Integrated static analysis with automated unit test generation and documentation synthesis. Employs AST analysis for code correctness and property-based testing for comprehensive coverage.
-
-🔮 **CodeRAG Integration System**<br>
-Advanced retrieval-augmented generation combining semantic vector embeddings with graph-based dependency analysis. Automatically discovers optimal libraries and implementation patterns from large-scale code corpus.
-
----
-
-### 🔧 **Core Techniques**
-
-- 🧠 **Intelligent Orchestration Agent**: Central decision-making system that coordinates workflow phases and analyzes requirements. Employs dynamic planning algorithms to adapt execution strategies in real-time based on evolving project complexity. Dynamically selects optimal processing strategies for each implementation step. <br>
-
-- 💾 **Efficient Memory Mechanism**: Advanced context engineering system that manages large-scale code contexts efficiently. Implements hierarchical memory structures with intelligent compression for handling complex codebases. This component enables instant retrieval of implementation patterns and maintains semantic coherence across extended development sessions. <br>
-
-- 🔍 **Advanced CodeRAG System**: Global code comprehension engine that analyzes complex inter-dependencies across repositories. Performs cross-codebase relationship mapping to understand architectural patterns from a holistic perspective. This module leverages dependency graphs and semantic analysis to provide globally-aware code recommendations during implementation.
-
----
-
-### 🤖 **Multi-Agent Architecture of DeepCode**:
-
-- **🎯 Central Orchestrating Agent**: Orchestrates entire workflow execution and makes strategic decisions. Coordinates specialized agents based on input complexity analysis. Implements dynamic task planning and resource allocation algorithms. <br>
-
-- **📝 Intent Understanding Agent**: Performs deep semantic analysis of user requirements to decode complex intentions. Extracts functional specifications and technical constraints through advanced NLP processing. Transforms ambiguous human descriptions into precise, actionable development specifications with structured task decomposition. <br>
-
-- **📄 Document Parsing Agent**: Processes complex technical documents and research papers with advanced parsing capabilities. Extracts algorithms and methodologies using document understanding models. Converts academic concepts into practical implementation specifications through intelligent content analysis. <br>
-
-- **🏗️ Code Planning Agent**: Performs architectural design and technology stack optimization. Dynamic planning for adaptive development roadmaps. Enforces coding standards and generates modular structures through automated design pattern selection.<br>
-
-- **🔍 Code Reference Mining Agent**: Discovers relevant repositories and frameworks through intelligent search algorithms. Analyzes codebases for compatibility and integration potential. Provides recommendations based on similarity metrics and automated dependency analysis. <br>
-
-- **📚 Code Indexing Agent**: Builds comprehensive knowledge graphs of discovered codebases. Maintains semantic relationships between code components. Enables intelligent retrieval and cross-reference capabilities. <br>
-
-- **🧬 Code Generation Agent**: Synthesizes gathered information into executable code implementations. Creates functional interfaces and integrates discovered components. Generates comprehensive test suites and documentation for reproducibility.
-
----
-
-#### 🛠️ **Implementation Tools Matrix**
-
-**🔧 Powered by MCP (Model Context Protocol)**
-
-DeepCode leverages the **Model Context Protocol (MCP)** standard to seamlessly integrate with various tools and services. This standardized approach ensures reliable communication between AI agents and external systems, enabling powerful automation capabilities.
-
-##### 📡 **MCP Servers & Tools**
-
-| 🛠️ **MCP Server** | 🔧 **Primary Function** | 💡 **Purpose & Capabilities** |
-|-------------------|-------------------------|-------------------------------|
-| **📂 filesystem** | File System Operations | Local file and directory management, read/write operations |
-| **🌐 fetch** | Web Content Retrieval | Fetch and extract content from URLs and web resources |
-| **📥 github-downloader** | Repository Management | Clone and download GitHub repositories for analysis |
-| **📋 file-downloader** | Document Processing | Download and convert files (PDF, DOCX, etc.) to Markdown |
-| **⚡ command-executor** | System Commands | Execute bash/shell commands for environment management |
-| **🧬 code-implementation** | Code Generation Hub | Comprehensive code reproduction with execution and testing |
-| **📚 code-reference-indexer** | Smart Code Search | Intelligent indexing and search of code repositories |
-| **📄 document-segmentation** | Smart Document Analysis | Intelligent document segmentation for large papers and technical documents |
-
-##### 🔧 **Legacy Tool Functions** *(for reference)*
-
-| 🛠️ **Function** | 🎯 **Usage Context** |
-|-----------------|---------------------|
-| **📄 read_code_mem** | Efficient code context retrieval from memory |
-| **✍️ write_file** | Direct file content generation and modification |
-| **🐍 execute_python** | Python code testing and validation |
-| **📁 get_file_structure** | Project structure analysis and organization |
-| **⚙️ set_workspace** | Dynamic workspace and environment configuration |
-| **📊 get_operation_history** | Process monitoring and operation tracking |
-
-
----
-
-🎛️ **Multi-Interface Framework**<br>
-RESTful API with CLI and web frontends featuring real-time code streaming, interactive debugging, and extensible plugin architecture for CI/CD integration.
-
-**🚀 Multi-Agent Intelligent Pipeline:**
-
-<div align="center">
-
-### 🌟 **Intelligence Processing Flow**
-
-<table align="center" width="100%" style="border: none; border-collapse: collapse;">
-<tr>
-<td colspan="3" align="center" style="padding: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 15px; color: white; font-weight: bold;">
-💡 <strong>INPUT LAYER</strong><br/>
-📄 Research Papers • 💬 Natural Language • 🌐 URLs • 📋 Requirements
-</td>
-</tr>
-<tr><td colspan="3" height="20"></td></tr>
-<tr>
-<td colspan="3" align="center" style="padding: 15px; background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%); border-radius: 12px; color: white; font-weight: bold;">
-🎯 <strong>CENTRAL ORCHESTRATION</strong><br/>
-Strategic Decision Making • Workflow Coordination • Agent Management
-</td>
-</tr>
-<tr><td colspan="3" height="15"></td></tr>
-<tr>
-<td align="center" style="padding: 12px; background: linear-gradient(135deg, #3742fa 0%, #2f3542 100%); border-radius: 10px; color: white; width: 50%;">
-📝 <strong>TEXT ANALYSIS</strong><br/>
-<small>Requirement Processing</small>
-</td>
-<td width="10"></td>
-<td align="center" style="padding: 12px; background: linear-gradient(135deg, #8c7ae6 0%, #9c88ff 100%); border-radius: 10px; color: white; width: 50%;">
-📄 <strong>DOCUMENT ANALYSIS</strong><br/>
-<small>Paper & Spec Processing</small>
-</td>
-</tr>
-<tr><td colspan="3" height="15"></td></tr>
-<tr>
-<td colspan="3" align="center" style="padding: 15px; background: linear-gradient(135deg, #00d2d3 0%, #54a0ff 100%); border-radius: 12px; color: white; font-weight: bold;">
-📋 <strong>REPRODUCTION PLANNING</strong><br/>
-Deep Paper Analysis • Code Requirements Parsing • Reproduction Strategy Development
-</td>
-</tr>
-<tr><td colspan="3" height="15"></td></tr>
-<tr>
-<td align="center" style="padding: 12px; background: linear-gradient(135deg, #ffa726 0%, #ff7043 100%); border-radius: 10px; color: white; width: 50%;">
-🔍 <strong>REFERENCE ANALYSIS</strong><br/>
-<small>Repository Discovery</small>
-</td>
-<td width="10"></td>
-<td align="center" style="padding: 12px; background: linear-gradient(135deg, #e056fd 0%, #f368e0 100%); border-radius: 10px; color: white; width: 50%;">
-📚 <strong>CODE INDEXING</strong><br/>
-<small>Knowledge Graph Building</small>
-</td>
-</tr>
-<tr><td colspan="3" height="15"></td></tr>
-<tr>
-<td colspan="3" align="center" style="padding: 15px; background: linear-gradient(135deg, #26de81 0%, #20bf6b 100%); border-radius: 12px; color: white; font-weight: bold;">
-🧬 <strong>CODE IMPLEMENTATION</strong><br/>
-Implementation Generation • Testing • Documentation
-</td>
-</tr>
-<tr><td colspan="3" height="15"></td></tr>
-<tr>
-<td colspan="3" align="center" style="padding: 20px; background: linear-gradient(135deg, #045de9 0%, #09c6f9 100%); border-radius: 15px; color: white; font-weight: bold;">
-⚡ <strong>OUTPUT DELIVERY</strong><br/>
-📦 Complete Codebase • 🧪 Test Suite • 📚 Documentation • 🚀 Deployment Ready
-</td>
-</tr>
-</table>
-
-</div>
-
-<div align="center">
-<br/>
-
-### 🔄 **Process Intelligence Features**
-
-<table align="center" style="border: none;">
-<tr>
-<td align="center" width="25%" style="padding: 15px;">
-<div style="background: #f8f9fa; border-radius: 10px; padding: 15px; border-left: 4px solid #ff6b6b;">
-<h4>🎯 Adaptive Flow</h4>
-<p><small>Dynamic agent selection based on input complexity</small></p>
-</div>
-</td>
-<td align="center" width="25%" style="padding: 15px;">
-<div style="background: #f8f9fa; border-radius: 10px; padding: 15px; border-left: 4px solid #4ecdc4;">
-<h4>🧠 Smart Coordination</h4>
-<p><small>Intelligent task distribution and parallel processing</small></p>
-</div>
-</td>
-<td align="center" width="25%" style="padding: 15px;">
-<div style="background: #f8f9fa; border-radius: 10px; padding: 15px; border-left: 4px solid #45b7d1;">
-<h4>🔍 Context Awareness</h4>
-<p><small>Deep understanding through CodeRAG integration</small></p>
-</div>
-</td>
-<td align="center" width="25%" style="padding: 15px;">
-<div style="background: #f8f9fa; border-radius: 10px; padding: 15px; border-left: 4px solid #96ceb4;">
-<h4>⚡ Quality Assurance</h4>
-<p><small>Automated testing and validation throughout</small></p>
-</div>
-</td>
-</tr>
-</table>
-
-</div>
-
----
-
-
-## 🚀 Quick Start
-
-### 📋 **Prerequisites**
-
-Before installing DeepCode, ensure you have the following:
-
-| Requirement | Version | Purpose |
-|-------------|---------|---------|
-| **Python** | 3.9+ | Core runtime |
-| **Node.js** | 18+ | New UI frontend |
-| **npm** | 8+ | Package management |
-
-```bash
-# Check your versions
-python --version   # Should be 3.9+
-node --version     # Should be 18+
-npm --version      # Should be 8+
+```powershell
+git clone git@github.com:mindok7520/DeepCode.git
+cd DeepCode
 ```
 
-<details>
-<summary><strong>📥 Install Node.js (if not installed)</strong></summary>
+이미 저장소를 받은 상태라면 이 단계는 건너뛰어도 됩니다.
 
-```bash
-# macOS (using Homebrew)
-brew install node
+### 2. 설정 파일 생성
 
-# Ubuntu/Debian
-curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
-sudo apt-get install -y nodejs
-
-# Windows
-# Download from https://nodejs.org/
+```powershell
+Copy-Item deepcode_config.json.example deepcode_config.json
 ```
 
-</details>
-
-### 📦 **Step 1: Installation**
-
-Choose one of the following installation methods:
-
-#### ⚡ **Direct Installation (Recommended)**
-
-```bash
-# 🚀 Install DeepCode package directly
-pip install deepcode-hku
-
-# 🔑 Download the unified configuration template
-curl -O https://raw.githubusercontent.com/HKUDS/DeepCode/main/deepcode_config.json.example
-cp deepcode_config.json.example deepcode_config.json
-```
-
-#### 🔧 **Development Installation (From Source)**
-
-<details>
-<summary><strong>📂 Click to expand development installation options</strong></summary>
-
-##### 🔥 **Using UV (Recommended for Development)**
-
-```bash
-git clone https://github.com/HKUDS/DeepCode.git
-cd DeepCode/
-
-curl -LsSf https://astral.sh/uv/install.sh | sh
-uv venv --python=3.13
-source .venv/bin/activate  # On Windows: .venv\Scripts\activate
-uv pip install -r requirements.txt
-
-# Install frontend dependencies
-npm install --prefix new_ui/frontend
-```
-
-##### 🐍 **Using Traditional pip**
-
-```bash
-git clone https://github.com/HKUDS/DeepCode.git
-cd DeepCode/
-
-pip install -r requirements.txt
-
-# Install frontend dependencies
-npm install --prefix new_ui/frontend
-```
-
-##### 🧪 **Editable install (lets `deepcode` always run THIS checkout)**
-
-If you want the global `deepcode` command to launch the source tree you are
-hacking on, install the project in editable mode after the steps above:
-
-```bash
-pip install -e .
-```
-
-This registers a `deepcode-hku` package (current version 1.2.0) and exposes
-the `deepcode` CLI entry point. Any local code change is picked up
-immediately on next launch — no reinstall needed.
-
-> If you maintain multiple DeepCode checkouts, only one of them can own the
-> `deepcode` command at a time (the most recent `pip install -e .` wins).
-> Reinstall in the checkout you currently want to be active.
-
-</details>
-
-### 🔧 **Step 2: Configuration**
-
-> The following configuration applies to **all installation methods** (pip, UV, source, and Docker). Everything lives in **one** file: `deepcode_config.json` (single source of truth, nanobot-style).
-
-#### 🔑 API Keys *(required)*
-
-Edit `deepcode_config.json` and fill in at least one provider key. Inline strings work, and `${ENV_VAR}` references are resolved at load time.
+기본 예제 설정은 다음과 같이 Codex 제공자를 사용합니다.
 
 ```json
 {
+  "agents": {
+    "defaults": {
+      "provider": "codex",
+      "model": "codex/gpt-5.5"
+    },
+    "planning": {
+      "provider": "codex",
+      "model": "codex/gpt-5.5"
+    },
+    "implementation": {
+      "provider": "codex",
+      "model": "codex/gpt-5.5"
+    }
+  },
   "providers": {
-    "openai":    { "apiKey": "your_openai_api_key" },
-    "anthropic": { "apiKey": "${ANTHROPIC_API_KEY}" },
-    "gemini":    { "apiKey": "" }
+    "codex": {}
   }
 }
 ```
 
-<details>
-<summary><strong>🔌 Using OpenAI-compatible providers (OpenRouter / Poe / DashScope / etc.)</strong></summary>
+`deepcode_config.json`은 개인 설정과 인증 정보를 담는 파일이므로 커밋하지 마세요. 저장소의 `.gitignore`에 이미 제외되어 있습니다.
 
-Any OpenAI-compatible endpoint is supported by overriding `apiBase` on the matching provider entry. Then set the model name on the `agents` block (using `provider/model` slugs):
+### 3. 로컬 실행
+
+```powershell
+pip install -r requirements.txt
+npm install --prefix new_ui/frontend
+python deepcode.py --local
+```
+
+실행 후 브라우저에서 다음 주소를 엽니다.
+
+- 프론트엔드: `http://localhost:5173`
+- 백엔드 API: `http://localhost:8000`
+
+### 4. Docker 실행
+
+```powershell
+docker compose -f deepcode_docker/docker-compose.yml up --build
+```
+
+Docker 모드에서는 DeepCode가 `http://localhost:8000`에서 실행됩니다. Compose 설정에는 Codex 로그인 콜백 포트 `1455`, `1457`과 `/root/.codex` 영구 볼륨이 포함되어 있습니다.
+
+## Codex/ChatGPT 웹 로그인
+
+DeepCode는 로컬 Codex 인증 파일인 `~/.codex/auth.json`을 사용합니다. API 키를 직접 저장하는 방식이 아니라 브라우저에서 ChatGPT 계정으로 로그인하고, DeepCode가 해당 세션 토큰을 읽어 Codex 모델 목록과 응답 API를 호출합니다.
+
+절차는 다음과 같습니다.
+
+1. DeepCode를 실행합니다.
+2. 웹 UI에서 `설정` 페이지로 이동합니다.
+3. 제공자를 `Codex/ChatGPT 웹 로그인`으로 선택합니다.
+4. `웹 로그인` 버튼을 누릅니다.
+5. 새 브라우저 창에서 ChatGPT 계정으로 로그인합니다.
+6. 콜백이 완료되면 설정 화면에서 인증 상태와 사용 가능한 모델을 확인합니다.
+7. 기본, 계획, 구현 모델을 선택하고 저장합니다.
+
+Docker에서 로그인할 때는 Compose가 `1455:1455`, `1457:1457` 포트를 열어 둡니다. 로컬 방화벽이나 보안 프로그램이 해당 포트를 막고 있으면 로그인 콜백이 실패할 수 있습니다.
+
+로그아웃은 설정 화면의 `로그아웃` 버튼으로 처리합니다. 이 작업은 현재 `CODEX_HOME` 아래의 `auth.json`을 삭제합니다.
+
+## API 키 기반 제공자 사용
+
+Codex 대신 API 키 기반 제공자를 쓰려면 `deepcode_config.json`의 provider와 model을 바꿉니다.
+
+OpenRouter 예시는 다음과 같습니다.
 
 ```json
 {
   "agents": {
     "defaults": {
       "provider": "openrouter",
-      "model": "z-ai/glm-5.1"
+      "model": "anthropic/claude-sonnet-4.5"
     },
-    "planning":       { "provider": "openrouter", "model": "z-ai/glm-5.1" },
-    "implementation": { "provider": "openrouter", "model": "z-ai/glm-5.1" }
+    "planning": {
+      "provider": "openrouter",
+      "model": "anthropic/claude-sonnet-4.5"
+    },
+    "implementation": {
+      "provider": "openrouter",
+      "model": "anthropic/claude-sonnet-4.5"
+    }
   },
   "providers": {
-    "openai":     { "apiKey": "your_openai_api_key" },
-    "openrouter": { "apiKey": "your_openrouter_key", "apiBase": "https://openrouter.ai/api/v1" }
-  }
-}
-```
-
-OpenRouter model ids must use the exact `id` returned by OpenRouter, for example
-`z-ai/glm-5.1`, `anthropic/claude-sonnet-4.5`, or
-`google/gemini-2.5-pro`. In the new UI, open **Settings → OpenRouter Models**
-to search the live OpenRouter catalog and update the Default, Planning, and
-Implementation models without editing this file manually. Saving from the UI
-reloads the runtime for newly started workflows.
-
-> **🔐 Never commit `deepcode_config.json`.** It is already in `.gitignore`.
-
-</details>
-
-#### 🤖 LLM Provider *(optional)*
-
-The provider is inferred from the `model` slug (`openai/...`, `anthropic/...`, `gemini/...`, etc.). To force a specific backend, set `agents.defaults.provider`:
-
-```json
-{
-  "agents": {
-    "defaults": { "provider": "openai" }
-  }
-}
-```
-
-#### 📄 Document Segmentation *(optional)*
-
-```json
-{
-  "documentSegmentation": {
-    "enabled": true,
-    "sizeThresholdChars": 50000
-  }
-}
-```
-
-<details>
-<summary><strong>🪟 Windows Users: Additional MCP Server Configuration</strong></summary>
-
-On Windows you may need to configure MCP servers manually in `deepcode_config.json` (`tools.mcpServers`):
-
-```bash
-# 1. Install MCP servers globally
-npm i -g @modelcontextprotocol/server-filesystem
-
-# 2. Find your global node_modules path
-npm -g root
-```
-
-```json
-{
-  "tools": {
-    "mcpServers": {
-      "filesystem": {
-        "type": "stdio",
-        "command": "node",
-        "args": ["C:/Program Files/nodejs/node_modules/@modelcontextprotocol/server-filesystem/dist/index.js", "."]
-      }
+    "openrouter": {
+      "apiKey": "sk-or-v1-...",
+      "apiBase": "https://openrouter.ai/api/v1"
     }
   }
 }
 ```
 
-> Replace the path with the actual global `node_modules` path from step 2.
+웹 UI의 설정 화면에서도 OpenRouter 모델을 검색하고 기본, 계획, 구현 모델을 저장할 수 있습니다. 저장 후 새로 시작하는 워크플로우부터 변경된 모델을 사용합니다.
 
-</details>
+## 주요 사용 흐름
 
-<details>
-<summary><strong>🔍 Web Search Configuration</strong></summary>
+### 논문을 코드로 변환
 
-DeepCode performs web content retrieval through the built-in `fetch` MCP server (no API key required) and reads local files via `filesystem`. The auxiliary search server defaults to `filesystem`:
+1. 웹 UI의 `논문 구현` 화면으로 이동합니다.
+2. PDF 파일을 업로드하거나 논문 URL을 입력합니다.
+3. 작업을 시작합니다.
+4. 계획 검토나 추가 질문이 나오면 화면에서 응답합니다.
+5. 결과 파일과 로그를 확인합니다.
 
-```json
-{
-  "tools": { "defaultSearchServer": "filesystem" }
-}
-```
+### 요구사항으로 코드 생성
 
-> **💡 Tip**: To plug in another search backend, add it under `tools.mcpServers` in `deepcode_config.json` and set `tools.defaultSearchServer` to its name.
+1. `채팅 기획` 화면으로 이동합니다.
+2. 만들고 싶은 앱, 라이브러리, 실험 코드 요구사항을 한국어 또는 영어로 입력합니다.
+3. DeepCode가 질문, 요구사항 요약, 구현 계획을 단계적으로 구성합니다.
+4. 생성된 코드는 `deepcode_lab/tasks/` 아래에 저장됩니다.
 
-</details>
+### 세션 관리
 
-### ⚡ **Step 3: Launch Application**
+CLI 세션은 `~/.deepcode/sessions/`에 저장됩니다.
 
-Choose your preferred launch method:
-
-<table width="100%">
-<tr>
-<th width="33%">🐳 Docker (Recommended)</th>
-<th width="33%">🚀 Local — no Docker</th>
-<th width="33%">🛠️ Other Methods</th>
-</tr>
-<tr><td>
-
-No Python/Node needed — everything in container.
-
-```bash
-git clone https://github.com/HKUDS/DeepCode.git
-cd DeepCode/
-cp deepcode_config.json.example \
-   deepcode_config.json
-# Edit deepcode_config.json with your API keys
-
-./deepcode_docker/run_docker.sh
-# Access → http://localhost:8000
-```
-
-> Plain `deepcode` (no flags) is equivalent to launching this Docker
-> path. It will fail with `Docker is installed but not running` if
-> Docker Desktop isn't started — use the `--local` mode on the right
-> in that case.
-
-</td><td>
-
-Run the new UI directly on the host (frontend + backend, no container).
-
-```bash
-deepcode --local
-# Frontend → http://localhost:5173
-# Backend  → http://localhost:8000
-# Ctrl+C to stop
-```
-
-Features: User-in-Loop, real-time progress, inline chat. Use this when
-Docker isn't available or you need to iterate on local source changes.
-
-</td><td>
-
-```bash
-# macOS / Linux
-./run.sh
-# or: python deepcode.py --local
-
-# Windows
-run.bat
-# or: python deepcode.py --local
-
-# Classic Streamlit UI
-deepcode --classic
-
-# CLI mode
-deepcode --cli
-# or: python cli/main_cli.py
-```
-
-</td></tr>
-</table>
-
-#### 💻 **CLI sessions & inline inputs**
-
-The CLI is session-aware by default. A run without `--session` creates a new
-persistent session under `~/.deepcode/sessions/<id>/`; pass `--session <id>` to
-attach a new task to an existing session.
-
-```bash
-# Session management from the shell
+```powershell
 python cli/main_cli.py session list
 python cli/main_cli.py session show <session_id>
-python cli/main_cli.py session resume <session_id>   # show history, then enter interactive mode
+python cli/main_cli.py session resume <session_id>
 python cli/main_cli.py --session <session_id> --file paper.pdf
 ```
 
-Inside `python cli/main_cli.py`, type these at the main menu prompt:
+웹 UI에서는 헤더의 세션 메뉴에서 이전 작업을 다시 열거나 삭제할 수 있습니다.
 
-```text
-/resume                 # pick a previous session from a numbered list
-/new My experiment      # create and switch to a fresh session
-/session                # show the currently active session
-@/absolute/path.pdf     # process a file without opening the file picker
-@"C:\path with spaces\paper.pdf"
-@https://arxiv.org/pdf/....
+## Discord 연동 개요
+
+Discord 연동은 DeepCode가 직접 Discord 웹훅을 받는 방식이 아닙니다. `nanobot`이 Discord Gateway websocket에 연결해 메시지를 받고, 필요할 때 Docker 내부 네트워크의 DeepCode API(`http://deepcode:8000`)를 호출합니다.
+
+따라서 필요한 파일은 두 개입니다.
+
+- `deepcode_config.json`: DeepCode 자체 LLM과 MCP 설정
+- `nanobot_config.json`: Discord 봇 토큰, Discord 접근 제어, nanobot용 LLM provider 설정
+
+nanobot도 사용자 메시지를 해석하고 DeepCode 도구를 호출하기 위해 별도의 LLM provider가 필요합니다. 예제 파일은 OpenRouter를 기본 예시로 둡니다.
+
+## Discord 연동 상세 절차
+
+### 1. nanobot 설정 파일 생성
+
+```powershell
+Copy-Item nanobot_config.json.example nanobot_config.json
 ```
 
-Every task created from these flows inherits the active `session_id`; per-task
-logs are written to `deepcode_lab/tasks/<task>/logs/`.
-
-In the web UI, use the **Sessions** menu in the header to resume or delete a
-session. Deleting a session removes its JSONL session record and associated task
-workspace under `deepcode_lab/tasks/`, but keeps original files in `uploads/`.
-If the session still has `pending`, `running`, or `waiting_for_input` tasks, the
-backend rejects the deletion until the task is cancelled or completed.
-
-<details>
-<summary><strong>🐳 Docker Management Commands</strong></summary>
-
-```bash
-./deepcode_docker/run_docker.sh stop      # Stop
-./deepcode_docker/run_docker.sh restart   # Restart (no rebuild needed for config changes)
-./deepcode_docker/run_docker.sh --build   # Force rebuild
-./deepcode_docker/run_docker.sh logs      # Real-time logs
-./deepcode_docker/run_docker.sh status    # Health check
-./deepcode_docker/run_docker.sh clean     # Remove containers & images
-```
-
-Or with Docker Compose directly:
-```bash
-docker compose -f deepcode_docker/docker-compose.yml up --build   # Build & start
-docker compose -f deepcode_docker/docker-compose.yml down         # Stop
-docker compose -f deepcode_docker/docker-compose.yml logs -f      # Logs
-```
-
-> **💡** Config files are mounted as volumes — edit and restart, no rebuild needed.
-> **💡** Windows users: run `docker compose` commands directly if shell scripts aren't available.
-
-</details>
-
-### 🎯 **Step 4: Generate Code**
-
-1. **📄 Input** — Upload a research paper, type requirements, or paste a URL
-2. **🤖 Processing** — The multi-agent system analyzes, plans, and generates
-3. **⚡ Output** — Receive production-ready code with tests and documentation
-
----
-
-### 🔧 **Troubleshooting**
-
-<details>
-<summary><strong>❓ Common Issues & Solutions</strong></summary>
-
-| Problem | Cause | Fix |
-|---|---|---|
-| Docker build fails with `tsc: not found` | Corrupted build cache | `docker builder prune -f` then rebuild with `--no-cache` |
-| `error during connect` / `cannot find the file` / `Docker is installed but not running` | Docker Desktop not running | Either start Docker Desktop, **or** skip Docker entirely with `deepcode --local` |
-| Frontend blank page | Corrupted `node_modules` | `cd new_ui/frontend && rm -rf node_modules && npm install` |
-| `ERR_CONNECTION_REFUSED` | Wrong port / backend not running | Docker: `http://localhost:8000`. Local (`--local`): frontend `http://localhost:5173`, backend `http://localhost:8000` |
-| `npm install` → `Could not read package.json` | Wrong directory | Use `npm install --prefix new_ui/frontend` |
-| Windows: MCP servers not working | Need absolute paths | See [Windows MCP Configuration](#-step-2-configuration) above |
-| Windows: `UnicodeEncodeError: 'gbk' codec can't encode...` on launch | Default GBK console can't render emoji in startup banner | Set UTF-8 first: `set PYTHONIOENCODING=utf-8 && set PYTHONUTF8=1` (cmd) or `$env:PYTHONIOENCODING="utf-8"; $env:PYTHONUTF8="1"` (PowerShell) |
-| Windows: code-implementation stage hangs / produces a `-p` directory | LLM emitted `mkdir -p ...` and `cmd.exe` treated `-p` as a folder name | Already fixed in `tools/command_executor.py` — common Unix commands (`mkdir -p`, `touch`, `rm -rf`, `cp -r`, `mv`) are now executed natively via `pathlib`/`shutil`, no shell needed |
-| `name 'LoopDetector' is not defined` during code implementation | Missing import in workflow modules | Already fixed — `LoopDetector` and `ProgressTracker` are now imported from `utils.loop_detector` in both `workflows/code_implementation_workflow.py` and `workflows/code_implementation_workflow_index.py` |
-
-</details>
-
-  ---
-
-## 🤖 nanobot Integration (Feishu Chatbot)
-
-> Chat with DeepCode from **Feishu** — powered by [nanobot](https://github.com/HKUDS/nanobot).
-
-<div align="center">
-
-```mermaid
-flowchart LR
-    subgraph Clients["💬 Chat Platforms"]
-        direction TB
-        F["<b>Feishu</b><br/>WebSocket"]
-        T["<b>Telegram</b><br/>Polling"]
-        D["<b>Discord</b><br/>Gateway"]
-    end
-
-    subgraph Gateway["🐈 nanobot Gateway"]
-        direction TB
-        A["Agent Loop<br/><i>LLM + Tool Calls</i>"]
-    end
-
-    subgraph Engine["🧠 DeepCode Engine"]
-        direction TB
-        P2C["Paper → Code"]
-        C2C["Chat → Code"]
-        TRK["Task Tracking"]
-    end
-
-    F & T & D <-->|"messages"| A
-    A -->|"HTTP API"| P2C & C2C & TRK
-    A -.->|"LLM API"| LLM["☁️ OpenRouter"]
-
-    style Clients fill:#1a1a2e,stroke:#00d9ff,color:#fff
-    style Gateway fill:#1a1a2e,stroke:#4ecdc4,color:#fff
-    style Engine fill:#1a1a2e,stroke:#ff6b6b,color:#fff
-    style LLM fill:#1a1a2e,stroke:#9b59b6,color:#fff
-```
-
-</div>
-
-<div align="center">
-<table><tr>
-<td align="center"><a href="https://github.com/HKUDS/DeepCode"><img src="./assets/logo.png" alt="DeepCode" height="55"/></a></td>
-<td align="center"><h2>✦</h2></td>
-<td align="center"><a href="https://github.com/HKUDS/nanobot"><img src="./assets/nanobot.png" alt="nanobot" height="55"/></a></td>
-</tr></table>
-</div>
-
-Both services run inside the same **Docker Compose** network. Prerequisites: **Docker Desktop** + **OpenRouter API Key** ([get one](https://openrouter.ai/keys)) + **Feishu App**.
-
----
-
-### Step 1 · Create a Feishu Bot
-
-<details open>
-<summary><b>Feishu / Lark</b> (Recommended — WebSocket, no public IP needed)</summary>
-
-1. Go to [Feishu Open Platform](https://open.feishu.cn/app) → **Create Custom App**
-2. Enable **Bot** capability in App Features
-3. Add permissions: `im:message` · `im:message:send_as_bot`
-4. Event Subscription → select **Long Connection** → add `im.message.receive_v1`
-5. Note your **App ID** (`cli_xxx`) and **App Secret** → Publish the app
-
-> **Note**: Feishu requires an active WebSocket connection before you can save "Long Connection" mode. Start nanobot first (Step 3), then come back to configure Event Subscription.
-
-</details>
-
-### Step 2 · Configure
+Windows PowerShell이 아니라 Git Bash 또는 WSL을 쓰는 경우에는 다음 명령도 가능합니다.
 
 ```bash
 cp nanobot_config.json.example nanobot_config.json
 ```
 
-Edit `nanobot_config.json` — fill in the 3 required fields:
+### 2. Discord 애플리케이션과 봇 만들기
 
-```jsonc
+1. [Discord Developer Portal](https://discord.com/developers/applications)에 접속합니다.
+2. `New Application`을 누르고 애플리케이션 이름을 입력합니다.
+3. 왼쪽 메뉴에서 `Bot`을 선택합니다.
+4. `Add Bot` 또는 기존 봇 설정 화면으로 이동합니다.
+5. `Reset Token` 또는 `View Token`으로 봇 토큰을 확인합니다.
+6. 토큰은 한 번만 안전하게 복사하고 외부에 공유하지 않습니다.
+
+### 3. Gateway Intent 켜기
+
+Discord 채널 메시지 내용을 읽으려면 Message Content Intent가 필요합니다.
+
+1. Developer Portal의 `Bot` 화면으로 이동합니다.
+2. `Privileged Gateway Intents` 섹션을 찾습니다.
+3. `Message Content Intent`를 켭니다.
+4. 저장합니다.
+
+현재 nanobot Discord 채널의 기본 intents 값은 `37377`입니다. 이 값은 `GUILDS`, `GUILD_MESSAGES`, `DIRECT_MESSAGES`, `MESSAGE_CONTENT`를 포함하는 기본값입니다. 특별한 이유가 없다면 바꾸지 마세요.
+
+### 4. Discord User ID 확인
+
+보안을 위해 `allowFrom`에 사용할 Discord 사용자 ID를 확인합니다.
+
+1. Discord 앱에서 `User Settings`로 이동합니다.
+2. `Advanced`에서 `Developer Mode`를 켭니다.
+3. 자신의 프로필 또는 메시지를 우클릭합니다.
+4. `Copy User ID`를 선택합니다.
+
+`allowFrom`을 비워 두면 봇이 접근 가능한 채널에서 들어오는 모든 사용자 메시지를 처리합니다. 개인 서버가 아니라면 반드시 허용할 사용자 ID를 지정하세요.
+
+### 5. 봇 초대 URL 만들기
+
+1. Developer Portal에서 `OAuth2` -> `URL Generator`로 이동합니다.
+2. Scopes에서 `bot`을 선택합니다.
+3. Bot Permissions에서 최소 권한을 선택합니다.
+   - `View Channels`
+   - `Send Messages`
+   - `Read Message History`
+4. 파일 첨부 응답까지 허용하려면 `Attach Files`도 추가합니다.
+5. 생성된 URL을 열어 봇을 원하는 서버에 초대합니다.
+
+이 구현은 slash command를 등록하지 않습니다. 일반 메시지와 DM을 Gateway 이벤트로 받아 처리하므로 `applications.commands` scope는 필수는 아닙니다.
+
+### 6. nanobot_config.json 편집
+
+아래 예시는 Discord만 켜고, nanobot의 LLM provider로 OpenRouter를 사용하는 구성입니다.
+
+```json
 {
   "channels": {
     "feishu": {
+      "enabled": false,
+      "appId": "",
+      "appSecret": "",
+      "encryptKey": "",
+      "verificationToken": "",
+      "allowFrom": []
+    },
+    "telegram": {
+      "enabled": false,
+      "token": "",
+      "allowFrom": []
+    },
+    "discord": {
       "enabled": true,
-      "appId": "cli_xxx",              // ← Feishu App ID
-      "appSecret": "xxx",              // ← Feishu App Secret
-      "allowFrom": []                  // [] = allow all users
+      "token": "YOUR_DISCORD_BOT_TOKEN",
+      "allowFrom": ["YOUR_DISCORD_USER_ID"],
+      "gatewayUrl": "wss://gateway.discord.gg/?v=10&encoding=json",
+      "intents": 37377
     }
   },
   "providers": {
     "openrouter": {
-      "apiKey": "sk-or-v1-xxx"         // ← OpenRouter API Key
+      "apiKey": "sk-or-v1-your_openrouter_key"
     }
   },
   "agents": {
     "defaults": {
-      "model": "anthropic/claude-sonnet-4-20250514"
+      "model": "anthropic/claude-sonnet-4-20250514",
+      "workspace": "/root/.nanobot/workspace",
+      "maxTokens": 8192,
+      "temperature": 0.7
     }
+  },
+  "gateway": {
+    "host": "0.0.0.0",
+    "port": 18790
+  },
+  "tools": {
+    "web": {},
+    "exec": {
+      "timeout": 120
+    },
+    "restrictToWorkspace": false
   }
 }
 ```
 
-> **Model choice**: Any model on [openrouter.ai/models](https://openrouter.ai/models). Use `anthropic/claude-sonnet-4-20250514` for English, `minimax/minimax-m2.1` for Chinese.
+중요한 필드는 다음과 같습니다.
 
----
+- `channels.discord.enabled`: Discord 채널 사용 여부
+- `channels.discord.token`: Discord Developer Portal에서 복사한 Bot Token
+- `channels.discord.allowFrom`: 허용할 Discord 사용자 ID 목록
+- `channels.discord.gatewayUrl`: Discord Gateway endpoint, 기본값 유지 권장
+- `channels.discord.intents`: Gateway 이벤트 구독 비트마스크, 기본값 유지 권장
+- `providers.openrouter.apiKey`: nanobot이 사용할 LLM provider 키
+- `agents.defaults.model`: nanobot이 메시지를 해석할 때 사용할 모델
 
-### Step 3 · Launch
+### 7. DeepCode + nanobot 실행
 
-Make sure `deepcode_config.json` has your DeepCode API keys (see [Configuration](#-step-2-configuration)), then:
+Docker Compose 통합 실행을 권장합니다.
 
-```bash
-./nanobot/run_nanobot.sh -d          # Start both DeepCode + nanobot in background
-```
-
-The script checks Docker, validates configs, builds images (first run only), and starts both containers.
-
-```
-✓ DeepCode API:  http://localhost:8000
-✓ Nanobot:       http://localhost:18790
-```
-
-Now open Feishu → find your bot → send a message!
-
-<details>
-<summary><b>Management Commands</b></summary>
+Git Bash 또는 WSL:
 
 ```bash
-./nanobot/run_nanobot.sh              # Start (foreground)
-./nanobot/run_nanobot.sh -d           # Start (background)
-./nanobot/run_nanobot.sh stop         # Stop all services
-./nanobot/run_nanobot.sh restart      # Restart (config changes take effect immediately)
-./nanobot/run_nanobot.sh --build      # Force rebuild Docker images
-./nanobot/run_nanobot.sh logs         # View real-time logs
-./nanobot/run_nanobot.sh status       # Health check
-./nanobot/run_nanobot.sh clean        # Remove containers & images
+./nanobot/run_nanobot.sh -d
 ```
 
-</details>
+Windows PowerShell에서 스크립트 실행이 불편하면 Compose를 직접 사용합니다.
 
-<details>
-<summary><b>Troubleshooting</b></summary>
-
-| Problem | Fix |
-|---|---|
-| Feishu bot doesn't respond | Check logs (`./nanobot/run_nanobot.sh logs`), verify `appId`/`appSecret`, ensure app is published with Long Connection mode |
-| Can't connect to DeepCode | Verify `deepcode` container is healthy: `curl http://localhost:8000/health` |
-| Wrong language output | Switch model — `minimax-m2.1` defaults to Chinese, use Claude/GPT for English |
-| Config not taking effect | Just restart: `./nanobot/run_nanobot.sh restart` (no rebuild needed) |
-| Clear chat history | Send `/clear` in chat, or: `docker exec nanobot sh -c 'rm -rf /root/.nanobot/sessions/*.jsonl'` |
-
-</details>
-
----
-
-## 💡 Examples
-
-
-
-### 🎬 **Live Demonstrations**
-
-
-
-<table align="center">
-<tr>
-<td width="33%" align="center">
-
-#### 📄 **Paper2Code Demo**
-**Research to Implementation**
-
-<div align="center">
-  <a href="https://www.youtube.com/watch?v=MQZYpLkzsbw">
-    <img src="https://img.youtube.com/vi/MQZYpLkzsbw/maxresdefault.jpg" alt="Paper2Code Demo" width="100%" style="border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);"/>
-  </a>
-
-  **[▶️ Watch Demo](https://www.youtube.com/watch?v=MQZYpLkzsbw)**
-
-  *Transform academic papers into production-ready code automatically*
-</div>
-
-</td>
-<td width="33%" align="center">
-
-#### 🖼️ **Image Processing Demo**
-**AI-Powered Image Tools**
-
-<div align="center">
-  <a href="https://www.youtube.com/watch?v=nFt5mLaMEac">
-    <img src="https://img.youtube.com/vi/nFt5mLaMEac/maxresdefault.jpg" alt="Image Processing Demo" width="100%" style="border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);"/>
-  </a>
-
-  **[▶️ Watch Demo](https://www.youtube.com/watch?v=nFt5mLaMEac)**
-
-  *Intelligent image processing with background removal and enhancement*
-</div>
-
-</td>
-<td width="33%" align="center">
-
-#### 🌐 **Frontend Implementation**
-**Complete Web Application**
-
-<div align="center">
-  <a href="https://www.youtube.com/watch?v=78wx3dkTaAU">
-    <img src="https://img.youtube.com/vi/78wx3dkTaAU/maxresdefault.jpg" alt="Frontend Demo" width="100%" style="border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);"/>
-  </a>
-
-  **[▶️ Watch Demo](https://www.youtube.com/watch?v=78wx3dkTaAU)**
-
-  *Full-stack web development from concept to deployment*
-</div>
-
-</td>
-</tr>
-</table>
-
-
-
-### 🆕 **Recent Updates**
-
-#### 📄 **Smart Document Segmentation (v1.2.0)**
-- **Intelligent Processing**: Automatically handles large research papers and technical documents that exceed LLM token limits
-- **Configurable Control**: Toggle segmentation via configuration with size-based thresholds
-- **Semantic Analysis**: Advanced content understanding with algorithm, concept, and formula preservation
-- **Backward Compatibility**: Seamlessly falls back to traditional processing for smaller documents
-
-### 🚀 **Coming Soon**
-
-We're continuously enhancing DeepCode with exciting new features:
-
-#### 🔧 **Enhanced Code Reliability & Validation**
-- **Automated Testing**: Comprehensive functionality testing with execution verification and error detection.
-- **Code Quality Assurance**: Multi-level validation through static analysis, dynamic testing, and performance benchmarking.
-- **Smart Debugging**: AI-powered error detection with automatic correction suggestions
-
-#### 📊 **PaperBench Performance Showcase**
-- **Benchmark Dashboard**: Comprehensive performance metrics on the PaperBench evaluation suite.
-- **Accuracy Metrics**: Detailed comparison with state-of-the-art paper reproduction systems.
-- **Success Analytics**: Statistical analysis across paper categories and complexity levels.
-
-#### ⚡ **System-wide Optimizations**
-- **Performance Boost**: Multi-threaded processing and optimized agent coordination for faster generation.
-- **Enhanced Reasoning**: Advanced reasoning capabilities with improved context understanding.
-- **Expanded Support**: Extended compatibility with additional programming languages and frameworks.
-
----
-
-## ⭐ Star History
-
-<div align="center">
-
-*Community Growth Trajectory*
-
-<a href="https://star-history.com/#HKUDS/DeepCode&Date">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=HKUDS/DeepCode&type=Date&theme=dark" />
-    <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=HKUDS/DeepCode&type=Date" />
-    <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=HKUDS/DeepCode&type=Date" style="border-radius: 15px; box-shadow: 0 0 30px rgba(0, 217, 255, 0.3);" />
-  </picture>
-</a>
-
-</div>
-
----
-
-### 🚀 **Ready to Transform Development?**
-
-<div align="center">
-
-<p>
-  <a href="#-quick-start"><img src="https://img.shields.io/badge/🚀_Get_Started-00d4ff?style=for-the-badge&logo=rocket&logoColor=white" alt="Get Started"></a>
-  <a href="https://github.com/HKUDS"><img src="https://img.shields.io/badge/🏛️_View_on_GitHub-00d4ff?style=for-the-badge&logo=github&logoColor=white" alt="View on GitHub"></a>
-  <a href="https://github.com/HKUDS/deepcode-agent"><img src="https://img.shields.io/badge/⭐_Star_Project-00d4ff?style=for-the-badge&logo=star&logoColor=white" alt="Star Project"></a>
-</p>
-
----
-
-<div align="left">
-
-### 📖 **Citation**
-
-
-If you find DeepCode useful in your research or applications, please kindly cite:
-
+```powershell
+docker compose -f deepcode_docker/docker-compose.yml up --build -d
 ```
+
+상태와 로그 확인:
+
+```powershell
+docker compose -f deepcode_docker/docker-compose.yml ps
+docker compose -f deepcode_docker/docker-compose.yml logs -f nanobot
+docker compose -f deepcode_docker/docker-compose.yml logs -f deepcode
+```
+
+정상적으로 연결되면 nanobot 로그에 Discord Gateway READY 메시지가 표시됩니다.
+
+### 8. Discord에서 사용하기
+
+봇이 들어간 서버 채널이나 봇 DM에서 자연어로 요청합니다.
+
+예시:
+
+```text
+이 arXiv 논문을 DeepCode로 구현해줘: https://arxiv.org/pdf/....
+```
+
+```text
+FastAPI와 React로 간단한 이슈 트래커를 만들어줘. DeepCode 작업으로 시작하고 진행 상태도 알려줘.
+```
+
+nanobot은 사용자 메시지를 해석한 뒤 필요한 경우 다음 DeepCode 도구를 호출합니다.
+
+- `deepcode_paper2code`: 논문 URL 또는 파일 경로를 DeepCode 작업으로 제출
+- `deepcode_chat2code`: 일반 요구사항을 DeepCode 작업으로 제출
+- `deepcode_status`: 작업 진행 상태 확인
+- `deepcode_list_tasks`: 최근 작업 목록 조회
+- `deepcode_cancel`: 실행 중인 작업 취소
+- `deepcode_respond`: DeepCode가 사용자 입력을 기다릴 때 응답 전달
+
+첨부 파일은 Discord 메시지의 attachment URL을 다운로드해서 nanobot media 디렉터리에 저장합니다. 현재 Discord 채널 구현은 20MB를 넘는 첨부 파일을 건너뜁니다.
+
+## Discord 문제 해결
+
+| 증상 | 확인할 것 | 해결 방법 |
+| --- | --- | --- |
+| nanobot 로그에 `Discord bot token not configured`가 보임 | `nanobot_config.json`의 `channels.discord.token` | 실제 Bot Token을 넣고 컨테이너 재시작 |
+| Discord Gateway READY가 보이지 않음 | 인터넷 연결, 토큰, Gateway URL | 토큰 재발급, `gatewayUrl` 기본값 복구, `docker compose logs -f nanobot` 확인 |
+| 봇이 메시지를 못 읽음 | Message Content Intent | Developer Portal에서 `Message Content Intent`를 켜고 저장 |
+| 봇이 채널에서 답하지 않음 | 서버/채널 권한 | `View Channels`, `Send Messages`, `Read Message History` 권한 부여 |
+| 특정 사용자 메시지만 무시됨 | `allowFrom` 값 | Discord User ID가 정확한지 확인하거나 임시로 빈 배열로 테스트 |
+| DeepCode 작업 호출이 실패함 | DeepCode 컨테이너 상태 | `curl http://localhost:8000/health` 또는 Compose 로그 확인 |
+| 설정 변경이 반영되지 않음 | 컨테이너 재시작 여부 | `docker compose -f deepcode_docker/docker-compose.yml restart nanobot` |
+
+## 운영 명령
+
+DeepCode Docker:
+
+```powershell
+docker compose -f deepcode_docker/docker-compose.yml up --build
+docker compose -f deepcode_docker/docker-compose.yml down
+docker compose -f deepcode_docker/docker-compose.yml logs -f
+```
+
+nanobot 통합 스크립트:
+
+```bash
+./nanobot/run_nanobot.sh
+./nanobot/run_nanobot.sh -d
+./nanobot/run_nanobot.sh stop
+./nanobot/run_nanobot.sh restart
+./nanobot/run_nanobot.sh logs
+./nanobot/run_nanobot.sh status
+```
+
+로컬 개발:
+
+```powershell
+python deepcode.py --local
+npm run build --prefix new_ui/frontend
+python -m compileall core new_ui/backend
+```
+
+## 보안 주의
+
+- `deepcode_config.json`, `nanobot_config.json`, `.env`, `~/.codex/auth.json`은 커밋하지 마세요.
+- Discord Bot Token이 노출되면 Developer Portal에서 즉시 재발급하세요.
+- 공개 서버에서 Discord 봇을 쓸 때는 `allowFrom`을 반드시 설정하세요.
+- Docker에서 Codex 로그인을 사용할 경우 `codex-home` 볼륨에 인증 파일이 유지됩니다. 공유 환경에서는 볼륨 권한과 접근자를 확인하세요.
+- nanobot의 `tools.restrictToWorkspace`를 `true`로 바꾸면 파일 작업 범위를 workspace로 제한할 수 있습니다.
+
+## 라이선스와 인용
+
+원 프로젝트 라이선스와 인용 정보는 저장소의 `LICENSE` 및 논문 정보를 따릅니다.
+
+```bibtex
 @misc{li2025deepcodeopenagenticcoding,
-      title={DeepCode: Open Agentic Coding},
-      author={Zongwei Li and Zhonghang Li and Zirui Guo and Xubin Ren and Chao Huang},
-      year={2025},
-      eprint={2512.07921},
-      archivePrefix={arXiv},
-      primaryClass={cs.SE},
-      url={https://arxiv.org/abs/2512.07921},
+  title={DeepCode: Open Agentic Coding},
+  author={Li, et al.},
+  year={2025}
 }
 ```
-
----
-
-
-### 📄 **License**
-
-<div align="center">
-
-<img src="https://img.shields.io/badge/License-MIT-4ecdc4?style=for-the-badge&logo=opensourceinitiative&logoColor=white" alt="MIT License">
-
-**MIT License** - Copyright (c) 2025 Data Intelligence Lab, The University of Hong Kong
-
----
-
-
-<img src="https://visitor-badge.laobi.icu/badge?page_id=deepcode.readme&style=for-the-badge&color=00d4ff" alt="Visitors">
-
-</div>

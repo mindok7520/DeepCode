@@ -45,7 +45,7 @@ export const useSessionStore = create<SessionState>()(
       lastLoadedAt: null,
       _requestSeq: 0,
       preferences: {
-        llmProvider: 'google',
+        llmProvider: 'codex',
         enableIndexing: false,
         theme: 'light',
       },
@@ -71,7 +71,7 @@ export const useSessionStore = create<SessionState>()(
             error:
               error instanceof Error
                 ? error.message
-                : 'Failed to load sessions',
+                : '세션 목록을 불러오지 못했습니다',
             isLoading: false,
           });
         }
@@ -105,7 +105,7 @@ export const useSessionStore = create<SessionState>()(
             error:
               error instanceof Error
                 ? error.message
-                : 'Failed to load session',
+                : '세션을 불러오지 못했습니다',
             isLoading: false,
             ...(statusCode === 404
               ? { activeSessionId: null, activeSession: null }
@@ -144,7 +144,7 @@ export const useSessionStore = create<SessionState>()(
             error:
               error instanceof Error
                 ? error.message
-                : 'Failed to create session',
+                : '세션을 만들지 못했습니다',
             isLoading: false,
           });
           return null;
@@ -170,16 +170,16 @@ export const useSessionStore = create<SessionState>()(
                   ? null
                   : state.activeSession,
               isLoading: false,
-              error: 'Session no longer exists',
+              error: '이미 삭제된 세션입니다',
             }));
             return;
           }
           const message =
             statusCode === 409
-              ? 'This session has running or pending tasks. Cancel them or wait for completion before deleting.'
+              ? '이 세션에 실행 중이거나 대기 중인 작업이 있습니다. 작업을 취소하거나 완료 후 삭제해 주세요.'
               : error instanceof Error
                 ? error.message
-                : 'Failed to delete session';
+                : '세션을 삭제하지 못했습니다';
           set({ error: message, isLoading: false });
           throw new Error(message);
         }
@@ -221,7 +221,7 @@ export const useSessionStore = create<SessionState>()(
             error:
               error instanceof Error
                 ? error.message
-                : 'Failed to branch session',
+                : '세션을 분기하지 못했습니다',
             isLoading: false,
           });
           return null;

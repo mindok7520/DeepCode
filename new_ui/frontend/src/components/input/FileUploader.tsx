@@ -40,8 +40,8 @@ export default function FileUploader({
     const ext = '.' + file.name.split('.').pop()?.toLowerCase();
     if (!acceptedTypes.includes(ext)) {
       toast.error(
-        'Invalid file type',
-        `Accepted types: ${acceptedTypes.join(', ')}`
+        '지원하지 않는 파일 형식입니다',
+        `허용 형식: ${acceptedTypes.join(', ')}`
       );
       return;
     }
@@ -49,8 +49,8 @@ export default function FileUploader({
     // Validate file size
     if (file.size > maxSize) {
       toast.error(
-        'File too large',
-        `Maximum size: ${Math.round(maxSize / (1024 * 1024))}MB`
+        '파일이 너무 큽니다',
+        `최대 크기: ${Math.round(maxSize / (1024 * 1024))}MB`
       );
       return;
     }
@@ -64,9 +64,9 @@ export default function FileUploader({
         size: result.size,
       });
       onFileUploaded(result.file_id, result.path);
-      toast.success('File uploaded', result.filename);
+      toast.success('파일을 업로드했습니다', result.filename);
     } catch (error) {
-      toast.error('Upload failed', 'Please try again');
+      toast.error('업로드 실패', '잠시 후 다시 시도해 주세요');
       console.error('Upload error:', error);
     } finally {
       setIsUploading(false);
@@ -170,7 +170,7 @@ export default function FileUploader({
             {isUploading ? (
               <div className="flex flex-col items-center">
                 <Loader2 className="h-10 w-10 text-primary-500 animate-spin mb-3" />
-                <p className="text-sm text-gray-600">Uploading...</p>
+                <p className="text-sm text-gray-600">업로드 중...</p>
               </div>
             ) : (
               <div className="flex flex-col items-center">
@@ -180,10 +180,10 @@ export default function FileUploader({
                   }`}
                 />
                 <p className="text-sm font-medium text-gray-700 mb-1">
-                  Drop your file here or click to browse
+                  파일을 여기에 놓거나 클릭해서 선택하세요
                 </p>
                 <p className="text-xs text-gray-500">
-                  Supports {acceptedTypes.join(', ')} up to{' '}
+                  지원 형식: {acceptedTypes.join(', ')} · 최대{' '}
                   {Math.round(maxSize / (1024 * 1024))}MB
                 </p>
               </div>

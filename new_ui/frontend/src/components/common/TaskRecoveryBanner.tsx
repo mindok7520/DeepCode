@@ -55,20 +55,20 @@ export function TaskRecoveryBanner({
             <>
               <RefreshCw className="h-5 w-5 text-blue-500 animate-spin" />
               <span className="text-sm text-blue-700">
-                Recovering task...
+                작업을 복구하는 중...
               </span>
             </>
           ) : (
             <>
               <RefreshCw className="h-5 w-5 text-blue-500" />
               <span className="text-sm text-blue-700">
-                Task recovered! Your workflow is still running.
+                작업을 복구했습니다. 워크플로우가 계속 실행 중입니다.
               </span>
               <button
                 onClick={handleGoToTask}
                 className="flex items-center text-sm font-medium text-blue-600 hover:text-blue-800"
               >
-                View
+                보기
                 <ExternalLink className="h-3 w-3 ml-1" />
               </button>
               <button

@@ -70,6 +70,17 @@ PROVIDERS: tuple[ProviderSpec, ...] = (
         is_direct=True,
     ),
     ProviderSpec(
+        name="codex",
+        keywords=("codex", "gpt-5.5", "gpt-5.4"),
+        env_key="",
+        display_name="Codex / ChatGPT",
+        backend="openai_compat",
+        default_api_base="https://chatgpt.com/backend-api/codex",
+        strip_model_prefix=True,
+        supports_max_completion_tokens=True,
+        is_oauth=True,
+    ),
+    ProviderSpec(
         name="openrouter",
         keywords=("openrouter",),
         env_key="OPENROUTER_API_KEY",

@@ -89,19 +89,19 @@ export default function UrlInput({
             disabled={!isValid || isLoading || disabled}
             className="px-3 py-1.5 text-sm font-medium text-white bg-primary-600 rounded-md hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
-            {isLoading ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              'Load'
-            )}
+          {isLoading ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : (
+              '불러오기'
+          )}
           </button>
         </div>
       </div>
       {isValid === false && url.trim() && (
-        <p className="mt-1.5 text-xs text-red-500">Please enter a valid URL</p>
+        <p className="mt-1.5 text-xs text-red-500">올바른 URL을 입력해 주세요</p>
       )}
       <p className="mt-2 text-xs text-gray-400">
-        Supported: ArXiv, GitHub, and direct PDF links
+        지원: ArXiv, GitHub, 직접 PDF 링크
       </p>
     </motion.div>
   );

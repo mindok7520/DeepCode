@@ -44,10 +44,10 @@ export function GuardedLink({ to, children, ...props }: GuardedLinkProps) {
 
       <ConfirmDialog
         isOpen={showDialog}
-        title="Task is still running"
-        message="A task is currently running. If you leave this page, the task will continue in the background, but you may lose track of its progress."
-        confirmLabel="Leave anyway"
-        cancelLabel="Stay here"
+        title="작업이 아직 실행 중입니다"
+        message="현재 작업이 실행 중입니다. 페이지를 이동해도 작업은 백그라운드에서 계속되지만 진행 상황을 놓칠 수 있습니다."
+        confirmLabel="이동하기"
+        cancelLabel="머무르기"
         variant="warning"
         onConfirm={handleConfirm}
         onCancel={() => setShowDialog(false)}

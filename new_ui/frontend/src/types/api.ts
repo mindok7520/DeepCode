@@ -72,6 +72,38 @@ export interface OpenRouterModelsResponse {
   stale: boolean;
 }
 
+export interface CodexAuthStatus {
+  authenticated: boolean;
+  codex_home: string;
+  email?: string | null;
+  account_id?: string | null;
+  plan_type?: string | null;
+  error?: string | null;
+}
+
+export interface CodexLoginStartResponse {
+  login_id: string;
+  auth_url: string;
+  port: number;
+}
+
+export interface CodexReasoningLevel {
+  effort: string;
+  description?: string | null;
+}
+
+export interface CodexModelOption {
+  slug: string;
+  display_name: string;
+  description?: string | null;
+  default_reasoning_effort?: string | null;
+  supported_reasoning_levels: CodexReasoningLevel[];
+}
+
+export interface CodexModelsResponse {
+  models: CodexModelOption[];
+}
+
 export interface LLMModelsUpdateRequest {
   provider: string;
   default_model: string;

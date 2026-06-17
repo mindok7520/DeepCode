@@ -7,6 +7,9 @@ import type {
   ConfigResponse,
   SettingsResponse,
   FileUploadResponse,
+  CodexAuthStatus,
+  CodexLoginStartResponse,
+  CodexModelsResponse,
   LLMModelsUpdateRequest,
   OpenRouterModelsResponse,
   SessionDetail,
@@ -241,6 +244,27 @@ export const configApi = {
 
   setLLMProvider: async (provider: string): Promise<void> => {
     await api.put('/config/llm-provider', { provider });
+  },
+
+  getCodexAuthStatus: async (): Promise<CodexAuthStatus> => {
+    const response = await api.get<CodexAuthStatus>('/config/codex-auth/status');
+    return response.data;
+  },
+
+  startCodexLogin: async (): Promise<CodexLoginStartResponse> => {
+    const response = await api.post<CodexLoginStartResponse>(
+      '/config/codex-auth/login/start'
+    );
+    return response.data;
+  },
+
+  getCodexModels: async (): Promise<CodexModelsResponse> => {
+    const response = await api.get<CodexModelsResponse>('/config/codex-auth/models');
+    return response.data;
+  },
+
+  logoutCodex: async (): Promise<void> => {
+    await api.post('/config/codex-auth/logout');
   },
 
   getOpenRouterModels: async (

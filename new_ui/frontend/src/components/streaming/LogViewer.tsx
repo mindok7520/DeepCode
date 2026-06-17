@@ -63,7 +63,7 @@ export default function LogViewer({
       <div className="flex items-center justify-between px-4 py-2 bg-gray-50 border-b border-gray-200">
         <div className="flex items-center space-x-2">
           <Terminal className="h-4 w-4 text-gray-500" />
-          <span className="text-sm font-medium text-gray-700">Logs</span>
+          <span className="text-sm font-medium text-gray-700">로그</span>
           <span className="text-xs text-gray-400">({filteredLogs.length})</span>
         </div>
 
@@ -75,7 +75,7 @@ export default function LogViewer({
               onChange={(e) => setFilter(e.target.value || null)}
               className="text-xs pl-6 pr-2 py-1 border border-gray-200 rounded bg-white focus:outline-none focus:ring-1 focus:ring-primary-500"
             >
-              <option value="">All levels</option>
+              <option value="">전체 레벨</option>
               <option value="INFO">INFO</option>
               <option value="WARNING">WARNING</option>
               <option value="ERROR">ERROR</option>
@@ -89,7 +89,7 @@ export default function LogViewer({
             <button
               onClick={onClear}
               className="p-1 text-gray-400 hover:text-gray-600 transition-colors"
-              title="Clear logs"
+              title="로그 지우기"
             >
               <Trash2 className="h-4 w-4" />
             </button>
@@ -111,7 +111,7 @@ export default function LogViewer({
       >
         {filteredLogs.length === 0 ? (
           <div className="p-8 text-center text-gray-400">
-            No logs to display
+            표시할 로그가 없습니다
           </div>
         ) : (
           <div className="p-2 space-y-1">

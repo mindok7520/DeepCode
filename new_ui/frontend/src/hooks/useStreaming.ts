@@ -83,7 +83,7 @@ export function useStreaming(taskId: string | null) {
         case 'interaction_required':
           // User-in-Loop: workflow is requesting user input
           console.log('[useStreaming] Interaction required:', message.interaction_type);
-          addActivityLog(`⏸️ Waiting for input: ${message.title}`, 0, 'info');
+          addActivityLog(`⏸️ 입력 대기 중: ${message.title}`, 0, 'info');
           setPendingInteraction({
             type: message.interaction_type,
             title: message.title,
@@ -109,13 +109,13 @@ export function useStreaming(taskId: string | null) {
           updateProgress(
             message.status === 'incomplete' ? 95 : 100,
             message.status === 'incomplete'
-              ? 'Workflow finished with incomplete implementation'
-              : 'Workflow completed successfully'
+              ? '일부 구현을 남기고 워크플로우가 종료되었습니다'
+              : '워크플로우가 성공적으로 완료되었습니다'
           );
           addActivityLog(
             message.status === 'incomplete'
-              ? 'Workflow finished with incomplete implementation.'
-              : 'Workflow completed successfully!',
+              ? '일부 구현을 남기고 워크플로우가 종료되었습니다.'
+              : '워크플로우가 성공적으로 완료되었습니다.',
             message.status === 'incomplete' ? 95 : 100,
             message.status === 'incomplete' ? 'warning' : 'success'
           );
@@ -132,21 +132,21 @@ export function useStreaming(taskId: string | null) {
             setStatus('error');  // This will make isFinished = true
             setError(message.error);
             clearInteraction(); // Clear any pending interaction
-            addActivityLog(`❌ Error: ${message.error}`, 0, 'error');
+            addActivityLog(`❌ 오류: ${message.error}`, 0, 'error');
           }
           break;
 
         case 'cancelled':
           setStatus('cancelled');
           clearInteraction();
-          addActivityLog(`Workflow cancelled: ${message.reason}`, 0, 'warning');
+          addActivityLog(`워크플로우 취소: ${message.reason}`, 0, 'warning');
           break;
 
         case 'interrupted':
           setStatus('interrupted');
           clearInteraction();
           setError(message.reason);
-          addActivityLog(`Workflow interrupted: ${message.reason}`, 0, 'warning');
+          addActivityLog(`워크플로우 중단: ${message.reason}`, 0, 'warning');
           break;
 
         case 'code_chunk':

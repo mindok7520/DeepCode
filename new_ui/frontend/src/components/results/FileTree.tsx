@@ -57,13 +57,13 @@ export default function FileTree({ files, onFileSelect, selectedFile }: FileTree
   return (
     <div className="rounded-lg border border-gray-200 bg-white overflow-hidden">
       <div className="px-4 py-2 bg-gray-50 border-b border-gray-200">
-        <span className="text-sm font-medium text-gray-700">Generated Files</span>
+        <span className="text-sm font-medium text-gray-700">생성된 파일</span>
         <span className="text-xs text-gray-400 ml-2">({files.length})</span>
       </div>
       <div className="p-2 max-h-[400px] overflow-y-auto">
         {tree.length === 0 ? (
           <div className="py-8 text-center text-gray-400 text-sm">
-            No files generated yet
+            아직 생성된 파일이 없습니다
           </div>
         ) : (
           tree.map((node) => (

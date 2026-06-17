@@ -491,12 +491,13 @@ def _check_docker_prerequisites():
             sh.copy2(example, config_file)
             print(f"   ✅ Created {config_file}")
             print("")
-            print("   ⚠️  Please edit deepcode_config.json:")
+            print("   ⚠️  deepcode_config.json was created:")
             print(f"      {config_file}")
             print(
-                "   Fill in providers.<name>.apiKey for at least ONE LLM "
-                "provider (OpenAI/Anthropic/Gemini/etc.) or set it via ${ENV_VAR}."
+                "   기본값은 Codex/ChatGPT 웹 로그인입니다. 앱을 다시 실행한 뒤 "
+                "Settings에서 '웹 로그인'을 완료하세요."
             )
+            print("   API key 방식이 필요하면 providers.<name>.apiKey를 채우면 됩니다.")
             print("   Then run 'deepcode' again.")
             sys.exit(0)
         print("❌ deepcode_config.json not found and no template available.")

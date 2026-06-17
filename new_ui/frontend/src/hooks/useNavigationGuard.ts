@@ -36,7 +36,7 @@ export function useNavigationGuard() {
       if (shouldBlock) {
         e.preventDefault();
         // Chrome requires returnValue to be set
-        e.returnValue = 'A task is still running. Are you sure you want to leave?';
+        e.returnValue = '작업이 아직 실행 중입니다. 이 페이지를 떠날까요?';
         return e.returnValue;
       }
     };

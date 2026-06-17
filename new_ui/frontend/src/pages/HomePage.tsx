@@ -17,7 +17,7 @@ const features = [
     icon: Rocket,
     title: 'Paper2Code',
     description:
-      'Automated implementation of complex algorithms from research papers into high-quality, production-ready code.',
+      '연구 논문의 복잡한 알고리즘을 바로 실행 가능한 고품질 코드로 자동 구현합니다.',
     color: 'text-red-500',
     bgColor: 'bg-red-50',
   },
@@ -25,7 +25,7 @@ const features = [
     icon: Palette,
     title: 'Text2Web',
     description:
-      'Translates plain textual descriptions into fully functional, visually appealing front-end web code.',
+      '간단한 설명을 동작하는 프론트엔드 웹 코드와 화면으로 변환합니다.',
     color: 'text-teal-500',
     bgColor: 'bg-teal-50',
   },
@@ -33,7 +33,7 @@ const features = [
     icon: Server,
     title: 'Text2Backend',
     description:
-      'Generates efficient, scalable, and feature-rich back-end code from simple text inputs.',
+      '텍스트 요구사항만으로 확장 가능한 백엔드 코드를 생성합니다.',
     color: 'text-purple-500',
     bgColor: 'bg-purple-50',
   },
@@ -41,7 +41,7 @@ const features = [
     icon: Users,
     title: 'User-in-Loop',
     description:
-      'Interactive collaboration with AI agents through real-time feedback and inline chat interaction.',
+      '실시간 피드백과 인라인 채팅으로 AI 에이전트와 함께 결과를 조정합니다.',
     color: 'text-blue-500',
     bgColor: 'bg-blue-50',
   },
@@ -51,22 +51,22 @@ const actions = [
   {
     path: '/paper-to-code',
     icon: FileText,
-    title: 'Paper to Code',
-    description: 'Convert research papers into working implementations',
+    title: '논문으로 코드 만들기',
+    description: '연구 논문을 실행 가능한 구현으로 변환합니다',
     color: 'from-blue-500 to-indigo-600',
   },
   {
     path: '/chat',
     icon: MessageSquare,
-    title: 'Chat Planning',
-    description: 'Describe your project and let AI generate the code',
+    title: '채팅으로 기획하기',
+    description: '만들고 싶은 프로젝트를 설명하면 AI가 코드를 생성합니다',
     color: 'from-purple-500 to-pink-600',
   },
   {
     path: '/workflow',
     icon: GitBranch,
-    title: 'Workflow Editor',
-    description: 'Visual workflow design for complex projects',
+    title: '워크플로우 편집기',
+    description: '복잡한 프로젝트의 처리 흐름을 시각적으로 확인합니다',
     color: 'from-green-500 to-teal-600',
   },
 ];
@@ -81,14 +81,14 @@ export default function HomePage() {
         className="text-center"
       >
         <h1 className="text-4xl font-bold text-gray-900 mb-4">
-          Welcome to{' '}
+          한국어로 쓰는{' '}
           <span className="bg-gradient-to-r from-primary-600 to-indigo-600 bg-clip-text text-transparent">
             DeepCode
           </span>
         </h1>
         <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-          Transform research papers and natural language specifications into
-          production-ready code with AI-powered automation.
+          논문과 자연어 요구사항을 실제 프로젝트 코드로 바꾸는 AI 개발 자동화 도구입니다.
+          Codex 웹 로그인으로 시작하고, 전체 작업 흐름을 한 화면에서 관리합니다.
         </p>
       </motion.div>
 
@@ -117,7 +117,7 @@ export default function HomePage() {
                     {action.description}
                   </p>
                   <span className="inline-flex items-center text-sm font-medium text-primary-600">
-                    Get started
+                    시작하기
                     <ArrowRight className="ml-1 h-4 w-4 group-hover:translate-x-1 transition-transform" />
                   </span>
                 </Card>
@@ -130,7 +130,7 @@ export default function HomePage() {
       {/* Features */}
       <div>
         <h2 className="text-2xl font-bold text-gray-900 mb-6 text-center">
-          Powerful Features
+          주요 기능
         </h2>
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
           {features.map((feature, index) => {

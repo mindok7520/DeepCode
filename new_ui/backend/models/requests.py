@@ -86,14 +86,14 @@ class LLMProviderUpdateRequest(BaseModel):
     """Request model for updating LLM provider"""
 
     provider: str = Field(
-        ..., description="LLM provider name: google, anthropic, openai"
+        ..., description="LLM provider name: codex, openrouter, anthropic, openai, gemini"
     )
 
 
 class LLMModelsUpdateRequest(BaseModel):
     """Request model for updating phase-specific LLM models."""
 
-    provider: str = Field(default="openrouter", description="LLM provider name")
+    provider: str = Field(default="codex", description="LLM provider name")
     default_model: str = Field(..., description="Default phase model id")
     planning_model: str = Field(..., description="Planning phase model id")
     implementation_model: str = Field(..., description="Implementation phase model id")

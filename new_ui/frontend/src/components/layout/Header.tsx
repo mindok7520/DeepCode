@@ -37,14 +37,14 @@ export default function Header() {
   const isRunning = status === 'running' || status === 'waiting_for_input';
 
   const navItems = [
-    { path: '/', label: 'Home' },
-    { path: '/paper-to-code', label: 'Paper to Code' },
-    { path: '/chat', label: 'Chat Planning' },
-    { path: '/workflow', label: 'Workflow' },
+    { path: '/', label: '홈' },
+    { path: '/paper-to-code', label: '논문 구현' },
+    { path: '/chat', label: '채팅 기획' },
+    { path: '/workflow', label: '워크플로우' },
   ];
 
   const getSessionTitle = () =>
-    activeSession?.title || activeSessionId || 'Sessions';
+    activeSession?.title || activeSessionId || '세션 선택';
 
   const routeForSession = (session: Awaited<ReturnType<typeof selectSession>>) => {
     const latestTask = session?.tasks?.[session.tasks.length - 1];
@@ -66,7 +66,7 @@ export default function Header() {
   };
 
   const handleNewSession = async () => {
-    const session = await createSession('New session');
+    const session = await createSession('새 세션');
     setIsSessionMenuOpen(false);
     if (session) navigate('/chat');
   };
@@ -78,7 +78,7 @@ export default function Header() {
     event.stopPropagation();
     setSessionDeleteError(null);
     const confirmed = window.confirm(
-      'Delete this session? This removes the session history, task workspaces, generated files, and logs for this session. Uploaded source files are kept.'
+      '이 세션을 삭제할까요? 세션 기록, 작업 공간, 생성 파일, 로그가 제거됩니다. 업로드한 원본 파일은 유지됩니다.'
     );
     if (!confirmed) return;
 
@@ -87,7 +87,7 @@ export default function Header() {
       await deleteSession(sessionId);
     } catch (error) {
       setSessionDeleteError(
-        error instanceof Error ? error.message : 'Failed to delete session'
+        error instanceof Error ? error.message : '세션을 삭제하지 못했습니다'
       );
     } finally {
       setDeletingSessionId(null);
@@ -102,7 +102,7 @@ export default function Header() {
           <Link to="/" className="flex items-center space-x-2">
             <img
               src="https://github.com/Zongwei9888/Experiment_Images/raw/43c585dca3d21b8e4b6390d835cdd34dc4b4b23d/DeepCode_images/title_logo.svg"
-              alt="DeepCode Logo"
+              alt="DeepCode 로고"
               className="h-8 w-8"
             />
             <span className="text-xl font-semibold text-gray-900">
@@ -133,7 +133,7 @@ export default function Header() {
               <button
                 onClick={() => setIsSessionMenuOpen((open) => !open)}
                 className="flex max-w-[12rem] items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-700 shadow-sm transition-colors hover:border-primary-200 hover:bg-primary-50 hover:text-primary-700 sm:max-w-[16rem]"
-                title="Select session"
+                title="세션 선택"
               >
                 <Clock className="h-4 w-4 flex-shrink-0 text-primary-500" />
                 <span className="truncate">{getSessionTitle()}</span>
@@ -144,9 +144,9 @@ export default function Header() {
                 <div className="absolute right-0 mt-2 w-[calc(100vw-2rem)] max-w-sm overflow-hidden rounded-xl border border-gray-200 bg-white shadow-xl">
                   <div className="flex items-center justify-between border-b border-gray-100 px-4 py-3">
                     <div>
-                      <div className="text-sm font-semibold text-gray-900">Sessions</div>
+                      <div className="text-sm font-semibold text-gray-900">세션</div>
                       <div className="text-xs text-gray-400">
-                        Resume or start a workspace
+                        이전 작업을 이어가거나 새로 시작합니다
                       </div>
                     </div>
                     <button
@@ -154,7 +154,7 @@ export default function Header() {
                       className="inline-flex items-center gap-1 rounded-lg bg-primary-50 px-2.5 py-1.5 text-xs font-medium text-primary-700 hover:bg-primary-100"
                     >
                       <Plus className="h-3.5 w-3.5" />
-                      New
+                      새로 만들기
                     </button>
                   </div>
 
@@ -167,11 +167,11 @@ export default function Header() {
                     {isLoading && sessions.length === 0 ? (
                       <div className="flex items-center px-3 py-4 text-sm text-gray-400">
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Loading sessions...
+                        세션을 불러오는 중...
                       </div>
                     ) : sessions.length === 0 ? (
                       <div className="px-3 py-4 text-sm text-gray-400">
-                        No sessions yet. Start a task or create one.
+                        아직 세션이 없습니다. 작업을 시작하거나 세션을 만들어 주세요.
                       </div>
                     ) : (
                       sessions.slice(0, 12).map((session) => {
@@ -192,11 +192,10 @@ export default function Header() {
                               <div className="flex items-start justify-between gap-3">
                                 <div className="min-w-0">
                                   <div className="truncate text-sm font-medium">
-                                    {session.title || `Session ${session.session_id}`}
+                                    {session.title || `세션 ${session.session_id}`}
                                   </div>
                                   <div className="text-xs text-gray-400">
-                                    {session.message_count} msg · {session.task_count} task
-                                    {session.task_count === 1 ? '' : 's'}
+                                    메시지 {session.message_count}개 · 작업 {session.task_count}개
                                   </div>
                                 </div>
                                 <span className="mt-0.5 flex-shrink-0 font-mono text-[10px] text-gray-400">
@@ -210,8 +209,8 @@ export default function Header() {
                               }
                               disabled={deletingSessionId === session.session_id}
                               className="mt-0.5 rounded-md p-1.5 text-gray-300 transition-colors hover:bg-red-50 hover:text-red-600 disabled:cursor-not-allowed disabled:opacity-60 group-hover:text-gray-500"
-                              title="Delete session"
-                              aria-label={`Delete session ${session.session_id}`}
+                              title="세션 삭제"
+                              aria-label={`세션 ${session.session_id} 삭제`}
                             >
                               {deletingSessionId === session.session_id ? (
                                 <Loader2 className="h-4 w-4 animate-spin" />
@@ -241,7 +240,7 @@ export default function Header() {
                 className="flex items-center space-x-2 px-3 py-1.5 bg-blue-50 border border-blue-200 rounded-full text-sm font-medium text-blue-700 hover:bg-blue-100 transition-colors"
               >
                 <Loader2 className="h-4 w-4 animate-spin" />
-                <span className="hidden sm:inline">Task Running</span>
+                <span className="hidden sm:inline">작업 실행 중</span>
                 <span className="text-blue-500">{progress}%</span>
               </button>
             )}

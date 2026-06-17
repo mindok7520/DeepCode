@@ -30,39 +30,39 @@ export default function Sidebar() {
     {
       path: '/paper-to-code',
       icon: FileText,
-      label: 'Paper to Code',
-      description: 'Convert research papers',
+      label: '논문으로 코드 만들기',
+      description: '연구 논문을 구현 코드로 변환',
     },
     {
       path: '/chat',
       icon: MessageSquare,
-      label: 'Chat Planning',
-      description: 'Describe your project',
+      label: '채팅으로 기획하기',
+      description: '요구사항을 대화로 정리',
     },
     {
       path: '/workflow',
       icon: GitBranch,
-      label: 'Workflow Editor',
-      description: 'Visual workflow design',
+      label: '워크플로우 편집기',
+      description: '처리 흐름을 시각적으로 확인',
     },
   ];
 
   const getSessionTitle = (session: SessionSummary) =>
-    session.title || `Session ${session.session_id}`;
+    session.title || `세션 ${session.session_id}`;
 
   const formatRelativeTime = (value: string) => {
     const time = new Date(value).getTime();
     const diff = Date.now() - time;
     const minutes = Math.max(1, Math.floor(diff / 60000));
-    if (minutes < 60) return `${minutes}m ago`;
+    if (minutes < 60) return `${minutes}분 전`;
     const hours = Math.floor(minutes / 60);
-    if (hours < 24) return `${hours}h ago`;
+    if (hours < 24) return `${hours}시간 전`;
     const days = Math.floor(hours / 24);
-    return `${days}d ago`;
+    return `${days}일 전`;
   };
 
   const handleNewSession = async () => {
-    const session = await createSession('New session');
+    const session = await createSession('새 세션');
     if (session) {
       navigate('/chat');
     }
@@ -90,7 +90,7 @@ export default function Sidebar() {
         {/* Quick Actions */}
         <div className="mb-6">
           <h3 className="px-3 text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
-            Quick Actions
+            빠른 시작
           </h3>
           <nav className="space-y-1">
             {menuItems.map((item) => {
@@ -133,12 +133,12 @@ export default function Sidebar() {
           <div className="px-3 mb-2 flex items-center justify-between">
             <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider flex items-center">
               <Clock className="h-3 w-3 mr-1.5" />
-              Sessions
+              세션
             </h3>
             <button
               onClick={handleNewSession}
               className="p-1 rounded text-gray-400 hover:text-primary-600 hover:bg-primary-50"
-              title="New session"
+              title="새 세션"
             >
               <Plus className="h-4 w-4" />
             </button>
@@ -146,11 +146,11 @@ export default function Sidebar() {
           {isLoading && sessions.length === 0 ? (
             <div className="px-3 py-3 text-sm text-gray-400 flex items-center">
               <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-              Loading sessions...
+              세션을 불러오는 중...
             </div>
           ) : sessions.length === 0 ? (
             <div className="px-3 py-3 text-sm text-gray-400">
-              No sessions yet. Start a new task or create a session.
+              아직 세션이 없습니다. 새 작업을 시작하거나 세션을 만들어 주세요.
             </div>
           ) : (
             <div className="space-y-1 max-h-[32rem] overflow-y-auto pr-1">
@@ -175,8 +175,7 @@ export default function Sidebar() {
                             {getSessionTitle(session)}
                           </div>
                           <div className="text-xs text-gray-400 truncate">
-                            {session.message_count} msg · {session.task_count} task
-                            {session.task_count === 1 ? '' : 's'} ·{' '}
+                            메시지 {session.message_count}개 · 작업 {session.task_count}개 ·{' '}
                             {formatRelativeTime(session.updated_at)}
                           </div>
                         </div>
@@ -191,7 +190,7 @@ export default function Sidebar() {
                         className="inline-flex items-center text-xs text-red-500 hover:text-red-700"
                       >
                         <Trash2 className="h-3 w-3 mr-1" />
-                        Delete
+                        삭제
                       </button>
                     </div>
                   </div>
@@ -215,10 +214,10 @@ export default function Sidebar() {
       </div>
       <ConfirmDialog
         isOpen={sessionToDelete !== null}
-        title="Delete Session?"
-        message={`Delete "${sessionToDelete ? getSessionTitle(sessionToDelete) : ''}"? This removes the persisted conversation and task history for this session.`}
-        confirmLabel="Delete"
-        cancelLabel="Cancel"
+        title="세션을 삭제할까요?"
+        message={`"${sessionToDelete ? getSessionTitle(sessionToDelete) : ''}" 세션을 삭제합니다. 저장된 대화와 작업 기록도 함께 제거됩니다.`}
+        confirmLabel="삭제"
+        cancelLabel="취소"
         variant="danger"
         onConfirm={handleConfirmDelete}
         onCancel={() => setSessionToDelete(null)}

@@ -136,7 +136,7 @@ export function useTaskRecovery() {
           setSteps(CHAT_PLANNING_STEPS);
         }
 
-        updateProgress(taskStatus.status === 'incomplete' ? 95 : 100, 'Completed');
+        updateProgress(taskStatus.status === 'incomplete' ? 95 : 100, '완료');
         setStatus(taskStatus.status);
         setResult(taskStatus.result || null);
         setNeedsRecovery(false);
@@ -151,7 +151,7 @@ export function useTaskRecovery() {
         console.log('[TaskRecovery] Task interrupted, syncing final state...');
 
         setStatus('interrupted');
-        setError(taskStatus.message || 'Task was interrupted by a backend restart');
+        setError(taskStatus.message || '백엔드 재시작으로 작업이 중단되었습니다');
         setNeedsRecovery(false);
 
         setRecoveryState({
@@ -165,7 +165,7 @@ export function useTaskRecovery() {
         console.log('[TaskRecovery] Task errored, syncing error state...');
 
         setStatus('error');
-        setError(taskStatus.error || 'Unknown error');
+        setError(taskStatus.error || '알 수 없는 오류');
         setNeedsRecovery(false);
 
         setRecoveryState({

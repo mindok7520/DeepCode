@@ -97,7 +97,7 @@ export default function ActivityLogViewer({
         <div className="flex items-center space-x-2">
           <Terminal className="h-4 w-4 text-green-400" />
           <span className="text-sm font-medium text-gray-200">
-            Activity Log
+            활동 로그
           </span>
           {isRunning && (
             <motion.span
@@ -106,13 +106,13 @@ export default function ActivityLogViewer({
               className="flex items-center text-xs text-green-400"
             >
               <Loader2 className="h-3 w-3 mr-1 animate-spin" />
-              Live
+              실시간
             </motion.span>
           )}
         </div>
 
         <div className="text-xs text-gray-500">
-          {logs.length} events
+          이벤트 {logs.length}개
         </div>
       </div>
 
@@ -125,8 +125,8 @@ export default function ActivityLogViewer({
           <div className="h-full flex items-center justify-center text-gray-500">
             <div className="text-center">
               <Terminal className="h-12 w-12 mx-auto mb-3 opacity-50" />
-              <p className="text-sm">Activity logs will appear here</p>
-              <p className="text-xs text-gray-600 mt-1">Start a workflow to see real-time progress</p>
+              <p className="text-sm">활동 로그가 여기에 표시됩니다</p>
+              <p className="text-xs text-gray-600 mt-1">워크플로우를 시작하면 진행 상황을 실시간으로 볼 수 있습니다</p>
             </div>
           </div>
         ) : (
@@ -185,16 +185,16 @@ export default function ActivityLogViewer({
       <div className="flex items-center justify-between px-4 py-2 bg-gray-800 border-t border-gray-700 text-xs text-gray-500">
         <span>
           {isRunning ? (
-            <span className="text-green-400">● Connected</span>
+            <span className="text-green-400">● 연결됨</span>
           ) : logs.length > 0 ? (
-            <span className="text-gray-400">● Completed</span>
+            <span className="text-gray-400">● 완료</span>
           ) : (
-            <span className="text-gray-500">○ Idle</span>
+            <span className="text-gray-500">○ 대기 중</span>
           )}
         </span>
         {logs.length > 0 && (
           <span>
-            Last update: {formatTime(logs[logs.length - 1]?.timestamp || new Date())}
+            마지막 업데이트: {formatTime(logs[logs.length - 1]?.timestamp || new Date())}
           </span>
         )}
       </div>

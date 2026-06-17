@@ -72,15 +72,15 @@ class _Base(BaseModel):
 class AgentDefaults(_Base):
     """Default LLM generation settings shared by all phases."""
 
-    provider: str = "auto"  # "auto" or registry name (e.g. "openai", "anthropic")
-    model: str = "openai/gpt-4o-mini"
-    max_tokens: int = 8192
+    provider: str = "codex"  # "auto" or registry name (e.g. "codex", "anthropic")
+    model: str = "codex/gpt-5.5"
+    max_tokens: int = 40000
     temperature: float = 0.1
-    reasoning_effort: str | None = None
+    reasoning_effort: str | None = "xhigh"
     # DeepCode-specific token policy fields used by retry logic.
-    base_max_tokens: int | None = None
-    retry_max_tokens: int | None = None
-    max_tokens_policy: str | None = None
+    base_max_tokens: int | None = 40000
+    retry_max_tokens: int | None = 32768
+    max_tokens_policy: str | None = "adaptive"
     # Runner ergonomics (mirror nanobot's AgentDefaults).
     max_tool_iterations: int = 200
     max_tool_result_chars: int = 16_000
@@ -126,7 +126,7 @@ class ProviderConfig(_Base):
     """LLM provider connection block.
 
     ``apiKey`` may be a literal key or a ``${ENV_VAR}`` reference resolved at
-    load time.
+    load time. OAuth-backed providers such as ``codex`` can leave it empty.
     """
 
     api_key: str | None = None
@@ -140,6 +140,7 @@ class ProvidersConfig(_Base):
     """
 
     custom: ProviderConfig = Field(default_factory=ProviderConfig)
+    codex: ProviderConfig = Field(default_factory=ProviderConfig)
     openrouter: ProviderConfig = Field(default_factory=ProviderConfig)
     anthropic: ProviderConfig = Field(default_factory=ProviderConfig)
     openai: ProviderConfig = Field(default_factory=ProviderConfig)
@@ -578,6 +579,17 @@ def make_llm_provider(
     extra_headers = provider_cfg.extra_headers if provider_cfg else None
 
     needs_key = not (spec.is_oauth or spec.is_local or spec.is_direct)
+    if spec.name == "codex":
+        from core.codex_auth import CODEX_CHATGPT_BASE_URL, get_codex_auth_credentials
+
+        credentials = get_codex_auth_credentials(refresh=True)
+        api_key = credentials.access_token
+        api_base = api_base or CODEX_CHATGPT_BASE_URL
+        extra_headers = {
+            **credentials.openai_default_headers(),
+            **(extra_headers or {}),
+        }
+
     if needs_key and not api_key:
         raise ValueError(
             f"Provider '{spec.name}' (phase '{phase}') requires providers.{spec.name}.apiKey "

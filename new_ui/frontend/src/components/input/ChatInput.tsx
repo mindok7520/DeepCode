@@ -11,7 +11,7 @@ interface ChatInputProps {
 
 export default function ChatInput({
   onSubmit,
-  placeholder = 'Describe your project requirements...',
+  placeholder = '프로젝트 요구사항을 입력해 주세요...',
   isLoading = false,
   disabled = false,
 }: ChatInputProps) {
@@ -76,7 +76,7 @@ export default function ChatInput({
         </button>
       </div>
       <p className="mt-2 text-xs text-gray-400 text-center">
-        Press Enter to send, Shift+Enter for new line
+        Enter로 전송, Shift+Enter로 줄바꿈
       </p>
     </motion.div>
   );

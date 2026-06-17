@@ -39,19 +39,19 @@ export interface WorkflowInput {
 
 // Workflow step definitions
 export const PAPER_TO_CODE_STEPS: WorkflowStep[] = [
-  { id: 'init', title: 'Initialize', subtitle: 'Start workflow', progress: 5, status: 'pending' },
-  { id: 'input', title: 'Input acquisition', subtitle: 'Copy and convert PDF', progress: 25, status: 'pending' },
-  { id: 'workspace', title: 'Workspace setup', subtitle: 'Prepare task directory', progress: 40, status: 'pending' },
-  { id: 'preprocess', title: 'Document preprocessing', subtitle: 'Segment paper content', progress: 50, status: 'pending' },
-  { id: 'planning', title: 'Planning', subtitle: 'Generate implementation plan', progress: 60, status: 'pending' },
-  { id: 'references', title: 'Reference research', subtitle: 'Analyze related work', progress: 70, status: 'pending' },
-  { id: 'implementation', title: 'Implementation', subtitle: 'Generate code files', progress: 85, status: 'pending' },
+  { id: 'init', title: '초기화', subtitle: '워크플로우 시작', progress: 5, status: 'pending' },
+  { id: 'input', title: '입력 수집', subtitle: 'PDF 복사 및 변환', progress: 25, status: 'pending' },
+  { id: 'workspace', title: '작업 공간 준비', subtitle: '작업 디렉터리 구성', progress: 40, status: 'pending' },
+  { id: 'preprocess', title: '문서 전처리', subtitle: '논문 내용 분할', progress: 50, status: 'pending' },
+  { id: 'planning', title: '구현 계획', subtitle: '구현 계획 생성', progress: 60, status: 'pending' },
+  { id: 'references', title: '참고 자료 조사', subtitle: '관련 연구 분석', progress: 70, status: 'pending' },
+  { id: 'implementation', title: '코드 구현', subtitle: '코드 파일 생성', progress: 85, status: 'pending' },
 ];
 
 export const CHAT_PLANNING_STEPS: WorkflowStep[] = [
-  { id: 'init', title: 'Initialize', subtitle: 'Boot agents', progress: 5, status: 'pending' },
-  { id: 'plan', title: 'Plan', subtitle: 'Analyze intent', progress: 30, status: 'pending' },
-  { id: 'setup', title: 'Setup', subtitle: 'Workspace', progress: 50, status: 'pending' },
-  { id: 'draft', title: 'Draft', subtitle: 'Generate plan', progress: 70, status: 'pending' },
-  { id: 'implement', title: 'Implement', subtitle: 'Code gen', progress: 85, status: 'pending' },
+  { id: 'init', title: '초기화', subtitle: '에이전트 준비', progress: 5, status: 'pending' },
+  { id: 'plan', title: '요구사항 분석', subtitle: '의도 파악', progress: 30, status: 'pending' },
+  { id: 'setup', title: '환경 준비', subtitle: '작업 공간 구성', progress: 50, status: 'pending' },
+  { id: 'draft', title: '계획 작성', subtitle: '구현 계획 생성', progress: 70, status: 'pending' },
+  { id: 'implement', title: '코드 구현', subtitle: '코드 생성', progress: 85, status: 'pending' },
 ];

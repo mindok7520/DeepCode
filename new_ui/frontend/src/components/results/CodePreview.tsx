@@ -36,7 +36,7 @@ export default function CodePreview({
       <div className="flex items-center space-x-2 px-4 py-2 bg-gray-50 border-b border-gray-200">
         <Code className="h-4 w-4 text-gray-500" />
         <span className="text-sm font-medium text-gray-700">
-          {filename || 'Preview'}
+          {filename || '미리보기'}
         </span>
       </div>
       {code ? (
@@ -56,7 +56,7 @@ export default function CodePreview({
         />
       ) : (
         <div className="h-[300px] flex items-center justify-center text-gray-400">
-          Select a file to preview
+          미리볼 파일을 선택해 주세요
         </div>
       )}
     </div>

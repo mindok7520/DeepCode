@@ -69,14 +69,14 @@ export default function ChatPlanningPage() {
   // Show toast and add message when workflow completes
   useEffect(() => {
     if ((status === 'completed' || status === 'incomplete' || status === 'completed_with_warnings') && result) {
-      toast.success('Code generation complete!', 'Your project has been generated successfully.');
+      toast.success('코드 생성이 완료되었습니다', '프로젝트 파일이 성공적으로 생성되었습니다.');
       refreshActiveSession();
       setLocalMessages([]);
     } else if (status === 'error' && error) {
-      toast.error('Generation failed', error);
+      toast.error('생성 실패', error);
       refreshActiveSession();
     } else if (status === 'interrupted') {
-      toast.warning('Task interrupted', 'The backend restarted before this task completed.');
+      toast.warning('작업이 중단되었습니다', '작업 완료 전에 백엔드가 재시작되었습니다.');
       refreshActiveSession();
     }
   }, [status, error, result, refreshActiveSession]);
@@ -95,12 +95,12 @@ export default function ChatPlanningPage() {
         {
           id: crypto.randomUUID(),
           role: 'assistant',
-          content: 'Task cancelled. Feel free to start a new request.',
+          content: '작업을 취소했습니다. 새 요청을 입력해 주세요.',
         },
       ]);
-      toast.info('Task cancelled', 'The workflow has been stopped.');
+      toast.info('작업을 취소했습니다', '워크플로우를 중지했습니다.');
     } catch (err) {
-      toast.error('Cancel failed', 'Could not cancel the task.');
+      toast.error('취소 실패', '작업을 취소하지 못했습니다.');
       console.error('Cancel error:', err);
     } finally {
       setIsCancelling(false);
@@ -135,19 +135,19 @@ export default function ChatPlanningPage() {
         {
           id: crypto.randomUUID(),
           role: 'assistant',
-          content: 'Starting code generation...',
+          content: '코드 생성을 시작합니다...',
         },
       ]);
 
-      toast.info('Workflow started', 'Generating code from your requirements...');
+      toast.info('워크플로우를 시작했습니다', '요구사항을 바탕으로 코드를 생성합니다...');
     } catch (error) {
-      toast.error('Failed to start workflow', 'Please try again');
+      toast.error('워크플로우 시작 실패', '잠시 후 다시 시도해 주세요');
       setLocalMessages((messages) => [
         ...messages,
         {
           id: crypto.randomUUID(),
           role: 'assistant',
-          content: 'Sorry, there was an error processing your request.',
+          content: '요청을 처리하는 중 오류가 발생했습니다.',
         },
       ]);
       console.error('Start error:', error);
@@ -173,14 +173,14 @@ export default function ChatPlanningPage() {
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
       >
-        <h1 className="text-2xl font-bold text-gray-900">Chat Planning</h1>
+        <h1 className="text-2xl font-bold text-gray-900">채팅으로 기획하기</h1>
         <p className="text-gray-500 mt-1">
-          Describe your project and let AI generate the code for you
+          만들고 싶은 프로젝트를 한국어로 설명하면 AI가 구조를 잡고 코드를 생성합니다
         </p>
         <div className="mt-3 inline-flex items-center rounded-full border border-gray-200 bg-white px-3 py-1 text-xs text-gray-500">
-          Session:{' '}
+          세션:{' '}
           <span className="ml-1 font-medium text-gray-700">
-            {activeSession?.title || activeSessionId || 'New session will be created'}
+            {activeSession?.title || activeSessionId || '새 세션이 생성됩니다'}
           </span>
         </div>
       </motion.div>
@@ -194,7 +194,7 @@ export default function ChatPlanningPage() {
               <div className="flex items-center space-x-2">
                 <MessageSquare className="h-5 w-5 text-primary-500" />
                 <span className="font-medium text-gray-900">
-                  Project Requirements
+                  프로젝트 요구사항
                 </span>
               </div>
             </div>
@@ -206,7 +206,7 @@ export default function ChatPlanningPage() {
                   <div>
                     <MessageSquare className="h-12 w-12 mx-auto mb-3 opacity-50" />
                     <p className="text-sm">
-                      Describe your project requirements to get started
+                      시작하려면 만들고 싶은 기능과 조건을 입력해 주세요
                     </p>
                   </div>
                 </div>
@@ -264,7 +264,7 @@ export default function ChatPlanningPage() {
               <ChatInput
                 onSubmit={handleSubmit}
                 isLoading={isRunning}
-                placeholder="Describe your project requirements..."
+                placeholder="예: Next.js로 사내 문서 검색 챗봇을 만들고 싶어요..."
               />
             </div>
           </Card>
@@ -280,7 +280,7 @@ export default function ChatPlanningPage() {
                 className="w-4 h-4 text-primary-600 rounded focus:ring-primary-500 disabled:opacity-50"
               />
               <span className={`text-sm ${isRunning ? 'text-gray-400' : 'text-gray-700'}`}>
-                Enable code indexing for better results
+                더 나은 결과를 위해 코드 색인 사용
               </span>
             </label>
 
@@ -292,7 +292,7 @@ export default function ChatPlanningPage() {
                 className="mt-4 w-full flex items-center justify-center space-x-2 px-4 py-2 text-sm font-medium text-red-600 bg-red-50 border border-red-200 rounded-lg hover:bg-red-100 transition-colors disabled:opacity-50"
               >
                 <StopCircle className="h-4 w-4" />
-                <span>Cancel Task</span>
+                <span>작업 취소</span>
               </button>
             )}
           </Card>
@@ -315,7 +315,7 @@ export default function ChatPlanningPage() {
           <ActivityLogViewer
             logs={activityLogs}
             isRunning={isRunning && !isWaitingForInput}
-            currentMessage={isWaitingForInput ? 'Waiting for your input...' : message}
+            currentMessage={isWaitingForInput ? '사용자 입력을 기다리는 중...' : message}
           />
 
           {/* Generated Files */}
@@ -334,10 +334,10 @@ export default function ChatPlanningPage() {
                   <CheckCircle className="h-6 w-6 text-green-500 flex-shrink-0" />
                   <div className="flex-1">
                     <h3 className="font-medium text-green-900">
-                      Code Generation Complete!
+                      코드 생성 완료
                     </h3>
                     <p className="text-sm text-green-700 mt-1">
-                      Your code has been successfully generated.
+                      요청한 프로젝트 코드가 생성되었습니다.
                     </p>
                     {result.repo_result && typeof result.repo_result === 'object' && 'code_directory' in (result.repo_result as Record<string, unknown>) ? (
                       <div className="mt-3 flex items-center text-sm text-green-600">
@@ -366,25 +366,25 @@ export default function ChatPlanningPage() {
                   <div className="flex-1">
                     <h3 className="font-medium text-yellow-900">
                       {status === 'interrupted'
-                        ? 'Task Interrupted'
-                        : 'Code Generation Partially Completed'}
+                        ? '작업이 중단되었습니다'
+                        : '코드 생성이 일부 완료되었습니다'}
                     </h3>
                     <p className="text-sm text-yellow-700 mt-1">
                       {status === 'interrupted'
-                        ? 'The backend restarted before this task completed. Select this session and submit again to continue from persisted files.'
-                        : 'Some files may still be unfinished. Review the implementation metadata below.'}
+                        ? '작업 완료 전에 백엔드가 재시작되었습니다. 이 세션을 선택하고 다시 요청하면 저장된 파일에서 이어갈 수 있습니다.'
+                        : '일부 파일이 아직 미완성일 수 있습니다. 아래 구현 메타데이터를 확인해 주세요.'}
                     </p>
                     {implementationResult && (
                         <div className="mt-3 text-xs text-yellow-800 space-y-1">
                           <div>
-                            Files:{' '}
+                            파일:{' '}
                             {String(implementationResult.files_completed ?? 0)}
                             /
                             {String(implementationResult.total_files ?? 0)}
                           </div>
                           <div>
-                            Reason:{' '}
-                            {String(implementationResult.abort_reason ?? 'see logs')}
+                            사유:{' '}
+                            {String(implementationResult.abort_reason ?? '로그 확인')}
                           </div>
                         </div>
                       )}
@@ -405,7 +405,7 @@ export default function ChatPlanningPage() {
                   <XCircle className="h-6 w-6 text-red-500 flex-shrink-0" />
                   <div className="flex-1">
                     <h3 className="font-medium text-red-900">
-                      Generation Failed
+                      생성 실패
                     </h3>
                     <p className="text-sm text-red-700 mt-1">
                       {error}
@@ -421,10 +421,10 @@ export default function ChatPlanningPage() {
       {/* Cancel Confirmation Dialog */}
       <ConfirmDialog
         isOpen={showCancelDialog}
-        title="Cancel Task?"
-        message="Are you sure you want to cancel this task? Any progress will be lost and you'll need to start over."
-        confirmLabel="Yes, Cancel"
-        cancelLabel="Keep Running"
+        title="작업을 취소할까요?"
+        message="현재 작업을 취소하면 진행 중인 내용이 중단됩니다. 계속하려면 새로 시작해야 합니다."
+        confirmLabel="취소하기"
+        cancelLabel="계속 실행"
         variant="danger"
         onConfirm={handleCancelTask}
         onCancel={() => setShowCancelDialog(false)}

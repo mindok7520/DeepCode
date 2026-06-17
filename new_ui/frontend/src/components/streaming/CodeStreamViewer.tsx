@@ -66,7 +66,7 @@ export default function CodeStreamViewer({
         <div className="flex items-center space-x-2">
           <Code className="h-4 w-4 text-gray-500" />
           <span className="text-sm font-medium text-gray-700">
-            {currentFile || 'Generated Code'}
+            {currentFile || '생성된 코드'}
           </span>
           {isStreaming && (
             <motion.span
@@ -75,7 +75,7 @@ export default function CodeStreamViewer({
               className="flex items-center text-xs text-primary-600"
             >
               <Loader2 className="h-3 w-3 mr-1 animate-spin" />
-              Generating...
+              생성 중...
             </motion.span>
           )}
         </div>
@@ -88,12 +88,12 @@ export default function CodeStreamViewer({
           {copied ? (
             <>
               <Check className="h-3 w-3 text-green-500" />
-              <span>Copied!</span>
+              <span>복사됨</span>
             </>
           ) : (
             <>
               <Copy className="h-3 w-3" />
-              <span>Copy</span>
+              <span>복사</span>
             </>
           )}
         </button>
@@ -105,7 +105,7 @@ export default function CodeStreamViewer({
           <div className="h-[400px] flex items-center justify-center text-gray-400">
             <div className="text-center">
               <Code className="h-12 w-12 mx-auto mb-3 opacity-50" />
-              <p className="text-sm">Code will appear here</p>
+              <p className="text-sm">생성된 코드가 여기에 표시됩니다</p>
             </div>
           </div>
         ) : (
@@ -147,7 +147,7 @@ export default function CodeStreamViewer({
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-primary-500"></span>
               </span>
               <span className="text-xs font-medium text-primary-700">
-                Live
+                실시간
               </span>
             </motion.div>
           </div>

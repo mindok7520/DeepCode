@@ -516,13 +516,16 @@ class OpenAICompatProvider(LLMProvider):
         model: str | None,
         reasoning_effort: str | None,
     ) -> bool:
-        """Use Responses API only for direct OpenAI requests that benefit from it."""
-        if self._spec and self._spec.name != "openai":
+        """Use Responses API for direct OpenAI and Codex/ChatGPT account requests."""
+        if self._spec and self._spec.name not in {"openai", "codex"}:
             return False
-        if not _is_direct_openai_base(self._effective_base):
+        is_codex = bool(self._spec and self._spec.name == "codex")
+        if not is_codex and not _is_direct_openai_base(self._effective_base):
             return False
 
         model_name = (model or self.default_model).lower()
+        if self._spec and self._spec.strip_model_prefix:
+            model_name = model_name.split("/")[-1]
         wants = False
         if reasoning_effort and reasoning_effort.lower() != "none":
             wants = True
@@ -602,6 +605,8 @@ class OpenAICompatProvider(LLMProvider):
     ) -> dict[str, Any]:
         """Build a Responses API body for direct OpenAI requests."""
         model_name = model or self.default_model
+        if self._spec and self._spec.strip_model_prefix:
+            model_name = model_name.split("/")[-1]
         sanitized_messages = self._sanitize_messages(
             self._sanitize_empty_content(messages)
         )
@@ -1110,6 +1115,8 @@ class OpenAICompatProvider(LLMProvider):
                     response = result
                     return result
                 except Exception as responses_error:
+                    if self._spec and self._spec.name == "codex":
+                        raise
                     if not self._should_fallback_from_responses_error(responses_error):
                         raise
                     self._record_responses_failure(model, reasoning_effort)
@@ -1201,6 +1208,8 @@ class OpenAICompatProvider(LLMProvider):
                     )
                     return response
                 except Exception as responses_error:
+                    if self._spec and self._spec.name == "codex":
+                        raise
                     if not self._should_fallback_from_responses_error(responses_error):
                         raise
                     self._record_responses_failure(model, reasoning_effort)

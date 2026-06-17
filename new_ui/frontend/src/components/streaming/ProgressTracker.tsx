@@ -33,12 +33,12 @@ export default function ProgressTracker({
       {/* Progress bar */}
       <div className="mb-6">
         <div className="flex justify-between text-sm mb-2">
-          <span className="font-medium text-gray-700">Progress</span>
+          <span className="font-medium text-gray-700">진행률</span>
           <span className="text-gray-500">{currentProgress}%</span>
         </div>
         {currentMessage ? (
           <div className="mb-3 rounded-lg border border-blue-100 bg-blue-50 px-3 py-2 text-xs font-medium text-blue-700">
-            Current backend stage: {currentMessage}
+            현재 백엔드 단계: {currentMessage}
           </div>
         ) : null}
         <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
@@ -88,7 +88,7 @@ export default function ProgressTracker({
             </div>
             {step.status === 'completed' && (
               <span className="text-xs text-green-600 font-medium">
-                {isTerminalProgress ? 'Done' : 'Reached'}
+                {isTerminalProgress ? '완료' : '도달'}
               </span>
             )}
           </motion.div>

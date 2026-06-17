@@ -53,12 +53,12 @@ export default function InlineChatInteraction({
     setIsSubmitting(true);
     try {
       await workflowsApi.respondToInteraction(taskId, action, data, false);
-      addActivityLog(`✓ Submitted: ${action}`, 0, 'success');
+      addActivityLog(`✓ 응답 제출: ${action}`, 0, 'success');
       clearInteraction();
       onComplete?.();
     } catch (error) {
       console.error('Failed to submit response:', error);
-      toast.error('Failed to submit', 'Please try again');
+      toast.error('제출 실패', '잠시 후 다시 시도해 주세요');
     } finally {
       setIsSubmitting(false);
     }
@@ -68,12 +68,12 @@ export default function InlineChatInteraction({
     setIsSubmitting(true);
     try {
       await workflowsApi.respondToInteraction(taskId, 'skip', {}, true);
-      addActivityLog('⏭️ Skipped interaction', 0, 'info');
+      addActivityLog('⏭️ 사용자 확인 단계를 건너뛰었습니다', 0, 'info');
       clearInteraction();
       onComplete?.();
     } catch (error) {
       console.error('Failed to skip:', error);
-      toast.error('Failed to skip', 'Please try again');
+      toast.error('건너뛰기 실패', '잠시 후 다시 시도해 주세요');
     } finally {
       setIsSubmitting(false);
     }
@@ -113,7 +113,7 @@ export default function InlineChatInteraction({
                 <textarea
                   className="mt-2 w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent resize-none bg-gray-50"
                   rows={2}
-                  placeholder="Type your answer here..."
+                  placeholder="답변을 입력해 주세요..."
                   value={answers[q.id || `q${index}`] || ''}
                   onChange={(e) => setAnswers(prev => ({
                     ...prev,
@@ -135,7 +135,7 @@ export default function InlineChatInteraction({
               disabled={isSubmitting}
             >
               <SkipForward className="h-3.5 w-3.5 mr-1.5" />
-              Skip
+              건너뛰기
             </Button>
           )}
           <Button
@@ -149,7 +149,7 @@ export default function InlineChatInteraction({
             ) : (
               <Send className="h-3.5 w-3.5 mr-1.5" />
             )}
-            Submit Answers
+            답변 제출
           </Button>
         </div>
       </div>
@@ -194,7 +194,7 @@ export default function InlineChatInteraction({
               <textarea
                 className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent resize-none bg-gray-50"
                 rows={3}
-                placeholder="Describe the changes you'd like to make..."
+                placeholder="변경하고 싶은 내용을 입력해 주세요..."
                 value={feedback}
                 onChange={(e) => setFeedback(e.target.value)}
                 disabled={isSubmitting}
@@ -207,11 +207,11 @@ export default function InlineChatInteraction({
           <Button
             variant="danger"
             size="sm"
-            onClick={() => handleSubmit('cancel', { reason: 'User cancelled' })}
+            onClick={() => handleSubmit('cancel', { reason: '사용자가 취소함' })}
             disabled={isSubmitting}
           >
             <XCircle className="h-3.5 w-3.5 mr-1.5" />
-            Cancel
+            취소
           </Button>
 
           {!showModify ? (
@@ -225,7 +225,7 @@ export default function InlineChatInteraction({
               disabled={isSubmitting}
             >
               <Edit className="h-3.5 w-3.5 mr-1.5" />
-              Modify
+              수정 요청
             </Button>
           ) : (
             <Button
@@ -235,13 +235,13 @@ export default function InlineChatInteraction({
                 if (feedback.trim()) {
                   handleSubmit('modify', { feedback });
                 } else {
-                  toast.warning('Please provide feedback', 'Describe what you want to change');
+                  toast.warning('수정 내용을 입력해 주세요', '바꾸고 싶은 점을 구체적으로 적어 주세요');
                 }
               }}
               disabled={isSubmitting || !feedback.trim()}
             >
               <Send className="h-3.5 w-3.5 mr-1.5" />
-              Submit Changes
+              수정 제출
             </Button>
           )}
 
@@ -256,7 +256,7 @@ export default function InlineChatInteraction({
               disabled={isSubmitting}
             >
               <Edit className="h-3.5 w-3.5 mr-1.5" />
-              Edit Plan
+              계획 편집
             </Button>
           ) : (
             <Button
@@ -266,13 +266,13 @@ export default function InlineChatInteraction({
                 if (editedPlan.trim()) {
                   handleSubmit('replace', { plan: editedPlan });
                 } else {
-                  toast.warning('Plan cannot be empty', 'Paste or write a complete plan');
+                  toast.warning('계획이 비어 있습니다', '전체 계획을 입력하거나 붙여넣어 주세요');
                 }
               }}
               disabled={isSubmitting || !editedPlan.trim()}
             >
               <Send className="h-3.5 w-3.5 mr-1.5" />
-              Save Plan
+              계획 저장
             </Button>
           )}
 
@@ -287,7 +287,7 @@ export default function InlineChatInteraction({
             ) : (
               <CheckCircle className="h-3.5 w-3.5 mr-1.5" />
             )}
-            Approve
+            승인
           </Button>
         </div>
       </div>

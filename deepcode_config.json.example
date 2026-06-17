@@ -1,13 +1,13 @@
 {
-  "$comment": "Single source of truth for DeepCode. Copy to deepcode_config.json and fill in at least one provider apiKey. Inline strings work; environment variable references with the dollar-brace syntax are also resolved at load time (see README).",
+  "$comment": "Single source of truth for DeepCode. Default mode uses Codex/ChatGPT browser login, so no provider apiKey is required for first run. API-key providers are still supported below.",
 
   "agents": {
     "defaults": {
-      "provider": "auto",
-      "model": "openai/gpt-5.4",
+      "provider": "codex",
+      "model": "codex/gpt-5.5",
       "maxTokens": 40000,
       "temperature": 0.1,
-      "reasoningEffort": "low",
+      "reasoningEffort": "xhigh",
       "baseMaxTokens": 40000,
       "retryMaxTokens": 32768,
       "maxTokensPolicy": "adaptive",
@@ -16,16 +16,19 @@
       "contextWindowTokens": 65536
     },
     "planning": {
-      "model": "openai/gpt-5.4"
+      "provider": "codex",
+      "model": "codex/gpt-5.5"
     },
     "implementation": {
-      "model": "openai/gpt-5.4"
+      "provider": "codex",
+      "model": "codex/gpt-5.5"
     }
   },
 
   "providers": {
+    "codex": {},
     "openai": {
-      "apiKey": "${OPENAI_API_KEY}"
+      "apiKey": ""
     },
     "anthropic": {
       "apiKey": ""

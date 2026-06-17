@@ -12,7 +12,7 @@ class TaskResponse(BaseModel):
     session_id: Optional[str] = None
     task_short_id: Optional[str] = None
     status: str = "created"
-    message: str = "Task created successfully"
+    message: str = "작업이 생성되었습니다"
     created_at: datetime = Field(default_factory=datetime.utcnow)
 
 

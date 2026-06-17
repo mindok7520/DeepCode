@@ -9,9 +9,18 @@ this PR.
 from __future__ import annotations
 
 import json
+from dataclasses import asdict
 
 from fastapi import APIRouter, HTTPException
 
+from core.codex_auth import (
+    CodexAuthError,
+    CodexAuthNotConfigured,
+    get_codex_auth_status,
+    list_codex_models,
+    logout_codex_auth,
+    start_codex_login,
+)
 from core.compat.runtime import set_runtime
 from core.providers.registry import find_by_name
 
@@ -72,6 +81,39 @@ async def get_openrouter_models(
     )
 
 
+@router.get("/codex-auth/status")
+async def get_codex_status() -> dict[str, object]:
+    """Return Codex/ChatGPT browser-login status without exposing tokens."""
+    return asdict(get_codex_auth_status(refresh=False))
+
+
+@router.post("/codex-auth/login/start")
+async def start_codex_auth_login() -> dict[str, object]:
+    """Start Codex/ChatGPT browser login and return the authorization URL."""
+    try:
+        return asdict(start_codex_login())
+    except CodexAuthError as err:
+        raise HTTPException(status_code=500, detail=str(err)) from err
+
+
+@router.get("/codex-auth/models")
+async def get_codex_models() -> dict[str, object]:
+    """Return models available to the logged-in Codex/ChatGPT account."""
+    try:
+        return {"models": [asdict(model) for model in list_codex_models()]}
+    except CodexAuthNotConfigured as err:
+        raise HTTPException(status_code=401, detail=str(err)) from err
+    except CodexAuthError as err:
+        raise HTTPException(status_code=500, detail=str(err)) from err
+
+
+@router.post("/codex-auth/logout")
+async def logout_codex() -> dict[str, bool]:
+    logout_codex_auth()
+    set_runtime(None)
+    return {"ok": True}
+
+
 @router.put("/llm-provider")
 async def set_llm_provider(request: LLMProviderUpdateRequest):
     """Force a specific provider for all phases by setting ``agents.defaults.provider``."""
@@ -79,14 +121,14 @@ async def set_llm_provider(request: LLMProviderUpdateRequest):
     if spec is None:
         raise HTTPException(
             status_code=400,
-            detail=f"Unknown provider '{request.provider}'.",
+            detail=f"알 수 없는 제공자입니다: '{request.provider}'",
         )
 
     needs_key = not (spec.is_oauth or spec.is_local or spec.is_direct)
     if needs_key and not get_api_key(spec.name):
         raise HTTPException(
             status_code=400,
-            detail=f"Provider '{spec.name}' has no apiKey configured in deepcode_config.json",
+            detail=f"'{spec.name}' 제공자의 apiKey가 deepcode_config.json에 설정되어 있지 않습니다.",
         )
 
     try:
@@ -110,7 +152,7 @@ async def set_llm_provider(request: LLMProviderUpdateRequest):
 
         return {
             "status": "success",
-            "message": f"LLM provider updated to '{spec.name}'",
+            "message": f"LLM 제공자가 '{spec.name}'(으)로 변경되었습니다.",
             "provider": spec.name,
         }
 
@@ -119,7 +161,7 @@ async def set_llm_provider(request: LLMProviderUpdateRequest):
     except Exception as e:
         raise HTTPException(
             status_code=500,
-            detail=f"Failed to update configuration: {str(e)}",
+            detail=f"설정을 업데이트하지 못했습니다: {str(e)}",
         )
 
 
@@ -130,14 +172,14 @@ async def set_llm_models(request: LLMModelsUpdateRequest):
     if spec is None:
         raise HTTPException(
             status_code=400,
-            detail=f"Unknown provider '{request.provider}'.",
+            detail=f"알 수 없는 제공자입니다: '{request.provider}'",
         )
 
     needs_key = not (spec.is_oauth or spec.is_local or spec.is_direct)
     if needs_key and not get_api_key(spec.name):
         raise HTTPException(
             status_code=400,
-            detail=f"Provider '{spec.name}' has no apiKey configured in deepcode_config.json",
+            detail=f"'{spec.name}' 제공자의 apiKey가 deepcode_config.json에 설정되어 있지 않습니다.",
         )
 
     models = {
@@ -149,7 +191,7 @@ async def set_llm_models(request: LLMModelsUpdateRequest):
     if missing:
         raise HTTPException(
             status_code=400,
-            detail=f"Missing model id for phase(s): {', '.join(missing)}",
+            detail=f"다음 단계의 모델 ID가 비어 있습니다: {', '.join(missing)}",
         )
 
     try:
@@ -180,7 +222,7 @@ async def set_llm_models(request: LLMModelsUpdateRequest):
 
         return {
             "status": "success",
-            "message": "LLM models updated. New workflows will use the selected models.",
+            "message": "LLM 모델 설정이 변경되었습니다. 새 워크플로우부터 선택한 모델을 사용합니다.",
             "provider": spec.name,
             "models": models,
         }
@@ -190,5 +232,5 @@ async def set_llm_models(request: LLMModelsUpdateRequest):
     except Exception as e:
         raise HTTPException(
             status_code=500,
-            detail=f"Failed to update model configuration: {str(e)}",
+            detail=f"모델 설정을 업데이트하지 못했습니다: {str(e)}",
         )

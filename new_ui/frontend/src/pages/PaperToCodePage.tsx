@@ -53,13 +53,13 @@ export default function PaperToCodePage() {
   // Show toast when workflow completes
   useEffect(() => {
     if ((status === 'completed' || status === 'incomplete' || status === 'completed_with_warnings') && result) {
-      toast.success('Paper processing complete!', 'Code has been generated successfully.');
+      toast.success('논문 처리가 완료되었습니다', '코드가 성공적으로 생성되었습니다.');
       refreshActiveSession();
     } else if (status === 'error' && error) {
-      toast.error('Processing failed', error);
+      toast.error('처리 실패', error);
       refreshActiveSession();
     } else if (status === 'interrupted') {
-      toast.warning('Task interrupted', 'The backend restarted before this task completed.');
+      toast.warning('작업이 중단되었습니다', '작업 완료 전에 백엔드가 재시작되었습니다.');
       refreshActiveSession();
     }
   }, [status, error, result, refreshActiveSession]);
@@ -73,9 +73,9 @@ export default function PaperToCodePage() {
       await workflowsApi.cancel(activeTaskId);
       setStatus('idle');
       reset();
-      toast.info('Task cancelled', 'The workflow has been stopped.');
+      toast.info('작업을 취소했습니다', '워크플로우를 중지했습니다.');
     } catch (err) {
-      toast.error('Cancel failed', 'Could not cancel the task.');
+      toast.error('취소 실패', '작업을 취소하지 못했습니다.');
       console.error('Cancel error:', err);
     } finally {
       setIsCancelling(false);
@@ -101,9 +101,9 @@ export default function PaperToCodePage() {
         setActiveSessionId(response.session_id);
         selectSession(response.session_id);
       }
-      toast.info('Workflow started', 'Processing your paper...');
+      toast.info('워크플로우를 시작했습니다', '논문을 분석하고 코드를 생성합니다...');
     } catch (error) {
-      toast.error('Failed to start workflow', 'Please try again');
+      toast.error('워크플로우 시작 실패', '잠시 후 다시 시도해 주세요');
       console.error('Start error:', error);
     }
   };
@@ -135,14 +135,14 @@ export default function PaperToCodePage() {
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
       >
-        <h1 className="text-2xl font-bold text-gray-900">Paper to Code</h1>
+        <h1 className="text-2xl font-bold text-gray-900">논문으로 코드 만들기</h1>
         <p className="text-gray-500 mt-1">
-          Upload a research paper and convert it to a working implementation
+          연구 논문을 업로드하거나 링크로 입력해 실행 가능한 구현 코드로 변환합니다
         </p>
         <div className="mt-3 inline-flex items-center rounded-full border border-gray-200 bg-white px-3 py-1 text-xs text-gray-500">
-          Session:{' '}
+          세션:{' '}
           <span className="ml-1 font-medium text-gray-700">
-            {activeSession?.title || activeSessionId || 'New session will be created'}
+            {activeSession?.title || activeSessionId || '새 세션이 생성됩니다'}
           </span>
         </div>
       </motion.div>
@@ -151,7 +151,7 @@ export default function PaperToCodePage() {
         {/* Left Column - Input */}
         <div className="space-y-6">
           <Card>
-            <h3 className="font-semibold text-gray-900 mb-4">Input Source</h3>
+            <h3 className="font-semibold text-gray-900 mb-4">입력 소스</h3>
 
             {/* Input Method Tabs */}
             <div className="flex space-x-2 mb-4">
@@ -163,7 +163,7 @@ export default function PaperToCodePage() {
                     : 'text-gray-600 hover:bg-gray-50'
                 }`}
               >
-                Upload PDF
+                PDF 업로드
               </button>
               <button
                 onClick={() => setInputMethod('url')}
@@ -173,7 +173,7 @@ export default function PaperToCodePage() {
                     : 'text-gray-600 hover:bg-gray-50'
                 }`}
               >
-                URL Link
+                URL 링크
               </button>
             </div>
 
@@ -187,7 +187,7 @@ export default function PaperToCodePage() {
                     isLoading={isRunning}
                     className="w-full"
                   >
-                    Start Processing
+                    처리 시작
                   </Button>
                 )}
               </div>
@@ -204,7 +204,7 @@ export default function PaperToCodePage() {
                   className="w-full flex items-center justify-center space-x-2 px-4 py-2 text-sm font-medium text-red-600 bg-red-50 border border-red-200 rounded-lg hover:bg-red-100 transition-colors disabled:opacity-50"
                 >
                   <StopCircle className="h-4 w-4" />
-                  <span>Cancel Task</span>
+                  <span>작업 취소</span>
                 </button>
               </div>
             )}
@@ -219,11 +219,11 @@ export default function PaperToCodePage() {
                   className="w-4 h-4 text-primary-600 rounded focus:ring-primary-500"
                 />
                 <span className="text-sm text-gray-700">
-                  Enable code indexing
+                  코드 색인 사용
                 </span>
               </label>
               <p className="text-xs text-gray-400 mt-1 ml-7">
-                Improves code quality but takes longer
+                시간이 더 걸리지만 코드 품질과 참조 정확도를 높입니다
               </p>
             </div>
           </Card>
@@ -256,7 +256,7 @@ export default function PaperToCodePage() {
           <ActivityLogViewer
             logs={activityLogs}
             isRunning={isRunning && !isWaitingForInput}
-            currentMessage={isWaitingForInput ? 'Waiting for your input...' : message}
+            currentMessage={isWaitingForInput ? '사용자 입력을 기다리는 중...' : message}
           />
 
           {/* Generated Files */}
@@ -275,10 +275,10 @@ export default function PaperToCodePage() {
                   <CheckCircle className="h-6 w-6 text-green-500 flex-shrink-0" />
                   <div className="flex-1">
                     <h3 className="font-medium text-green-900">
-                      Code Generation Complete!
+                      코드 생성 완료
                     </h3>
                     <p className="text-sm text-green-700 mt-1">
-                      Your code has been successfully generated from the paper.
+                      논문을 바탕으로 코드가 성공적으로 생성되었습니다.
                     </p>
                     {result.repo_result && typeof result.repo_result === 'object' && 'code_directory' in (result.repo_result as Record<string, unknown>) ? (
                       <div className="mt-3 flex items-center text-sm text-green-600">
@@ -307,25 +307,25 @@ export default function PaperToCodePage() {
                   <div className="flex-1">
                     <h3 className="font-medium text-yellow-900">
                       {status === 'interrupted'
-                        ? 'Task Interrupted'
-                        : 'Code Generation Partially Completed'}
+                        ? '작업이 중단되었습니다'
+                        : '코드 생성이 일부 완료되었습니다'}
                     </h3>
                     <p className="text-sm text-yellow-700 mt-1">
                       {status === 'interrupted'
-                        ? 'The backend restarted before this task completed. Select this session and start again to continue from persisted files.'
-                        : 'Some files may still be unfinished. Review the implementation metadata below.'}
+                        ? '작업 완료 전에 백엔드가 재시작되었습니다. 이 세션을 선택하고 다시 시작하면 저장된 파일에서 이어갈 수 있습니다.'
+                        : '일부 파일이 아직 미완성일 수 있습니다. 아래 구현 메타데이터를 확인해 주세요.'}
                     </p>
                     {implementationResult && (
                         <div className="mt-3 text-xs text-yellow-800 space-y-1">
                           <div>
-                            Files:{' '}
+                            파일:{' '}
                             {String(implementationResult.files_completed ?? 0)}
                             /
                             {String(implementationResult.total_files ?? 0)}
                           </div>
                           <div>
-                            Reason:{' '}
-                            {String(implementationResult.abort_reason ?? 'see logs')}
+                            사유:{' '}
+                            {String(implementationResult.abort_reason ?? '로그 확인')}
                           </div>
                         </div>
                       )}
@@ -346,7 +346,7 @@ export default function PaperToCodePage() {
                   <XCircle className="h-6 w-6 text-red-500 flex-shrink-0" />
                   <div className="flex-1">
                     <h3 className="font-medium text-red-900">
-                      Processing Failed
+                      처리 실패
                     </h3>
                     <p className="text-sm text-red-700 mt-1">
                       {error}
@@ -362,10 +362,10 @@ export default function PaperToCodePage() {
       {/* Cancel Confirmation Dialog */}
       <ConfirmDialog
         isOpen={showCancelDialog}
-        title="Cancel Task?"
-        message="Are you sure you want to cancel this task? Any progress will be lost and you'll need to start over."
-        confirmLabel="Yes, Cancel"
-        cancelLabel="Keep Running"
+        title="작업을 취소할까요?"
+        message="현재 작업을 취소하면 진행 중인 내용이 중단됩니다. 계속하려면 새로 시작해야 합니다."
+        confirmLabel="취소하기"
+        cancelLabel="계속 실행"
         variant="danger"
         onConfirm={handleCancelTask}
         onCancel={() => setShowCancelDialog(false)}
