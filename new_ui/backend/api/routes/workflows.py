@@ -3,9 +3,13 @@ Workflows API Routes
 Handles paper-to-code and chat-based planning workflows
 """
 
+from pathlib import Path
+from urllib.parse import urlparse
+
 from fastapi import APIRouter, BackgroundTasks, HTTPException
 
 from services.workflow_service import workflow_service
+from settings import settings
 from models.requests import (
     PaperToCodeRequest,
     ChatPlanningRequest,
@@ -17,6 +21,42 @@ from models.responses import TaskResponse
 router = APIRouter()
 
 
+def _validated_paper_input(request: PaperToCodeRequest) -> tuple[str, str]:
+    input_type = request.input_type.strip().lower()
+    if input_type == "url":
+        source = request.input_source.strip()
+        if not source:
+            raise HTTPException(status_code=400, detail="URL input is empty")
+        parsed = urlparse(source)
+        if parsed.scheme not in {"http", "https"} or not parsed.netloc:
+            raise HTTPException(
+                status_code=400,
+                detail="URL inputs must use http or https",
+            )
+        return source, input_type
+
+    if input_type != "file":
+        raise HTTPException(
+            status_code=400,
+            detail="input_type must be either 'file' or 'url'",
+        )
+
+    upload_root = Path(settings.upload_dir).expanduser().resolve()
+    source_path = Path(request.input_source).expanduser().resolve()
+    try:
+        source_path.relative_to(upload_root)
+    except ValueError as exc:
+        raise HTTPException(
+            status_code=400,
+            detail="File inputs must reference a file uploaded through DeepCode",
+        ) from exc
+
+    if not source_path.is_file():
+        raise HTTPException(status_code=404, detail="Uploaded file not found")
+
+    return str(source_path), input_type
+
+
 @router.post("/paper-to-code", response_model=TaskResponse)
 async def start_paper_to_code(
     request: PaperToCodeRequest,
@@ -26,17 +66,18 @@ async def start_paper_to_code(
     Start a paper-to-code workflow.
     Returns a task ID that can be used to track progress via WebSocket.
     """
+    input_source, input_type = _validated_paper_input(request)
     task = workflow_service.create_task(
         session_id=request.session_id,
-        task_kind="paper" if request.input_type != "url" else "url",
+        task_kind="paper" if input_type != "url" else "url",
     )
 
     # Run workflow in background
     background_tasks.add_task(
         workflow_service.execute_paper_to_code,
         task.task_id,
-        request.input_source,
-        request.input_type,
+        input_source,
+        input_type,
         request.enable_indexing,
         request.enable_user_interaction,
     )

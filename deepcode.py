@@ -245,6 +245,7 @@ def start_backend(backend_dir: Path):
     global _backend_process
 
     print("🔧 Starting backend server...")
+    backend_host = os.environ.get("DEEPCODE_HOST", "127.0.0.1")
 
     if get_platform() == "windows":
         _backend_process = subprocess.Popen(
@@ -254,7 +255,7 @@ def start_backend(backend_dir: Path):
                 "uvicorn",
                 "main:app",
                 "--host",
-                "0.0.0.0",
+                backend_host,
                 "--port",
                 "8000",
                 "--reload",
@@ -271,7 +272,7 @@ def start_backend(backend_dir: Path):
                 "uvicorn",
                 "main:app",
                 "--host",
-                "0.0.0.0",
+                backend_host,
                 "--port",
                 "8000",
                 "--reload",
@@ -285,7 +286,7 @@ def start_backend(backend_dir: Path):
     time.sleep(2)
 
     if _backend_process.poll() is None:
-        print("✅ Backend started: http://localhost:8000")
+        print(f"✅ Backend started: http://{backend_host}:8000")
         return True
     else:
         print("❌ Backend failed to start")
@@ -494,15 +495,17 @@ def _check_docker_prerequisites():
             print("   ⚠️  deepcode_config.json was created:")
             print(f"      {config_file}")
             print(
-                "   기본값은 Codex/ChatGPT 웹 로그인입니다. 앱을 다시 실행한 뒤 "
+                "   기본값은 Codex/ChatGPT 웹 로그인입니다. 앱이 시작되면 "
                 "Settings에서 '웹 로그인'을 완료하세요."
             )
             print("   API key 방식이 필요하면 providers.<name>.apiKey를 채우면 됩니다.")
-            print("   Then run 'deepcode' again.")
-            sys.exit(0)
-        print("❌ deepcode_config.json not found and no template available.")
-        print("   Create it in the project root, or copy deepcode_config.json.example.")
-        sys.exit(1)
+            print("   Continuing with the generated default config.")
+        else:
+            print("❌ deepcode_config.json not found and no template available.")
+            print(
+                "   Create it in the project root, or copy deepcode_config.json.example."
+            )
+            sys.exit(1)
 
     # Ensure data directories exist
     for d in ["deepcode_lab", "uploads", "logs"]:
@@ -522,21 +525,12 @@ def launch_docker():
     print("=" * 50)
 
     try:
-        # Check if image exists (auto-build on first run)
-        result = subprocess.run(
-            compose_args + ["images", "-q"],
-            capture_output=True,
-            **subprocess_text_kwargs(),
+        print("📦 Building Docker image from the current source tree...")
+        subprocess.run(
+            compose_args + ["up", "--build", "-d"],
+            check=True,
             env=subprocess_env(),
         )
-        if not result.stdout.strip():
-            print(
-                "📦 First run detected — building Docker image (may take a few minutes)..."
-            )
-            subprocess.run(compose_args + ["build"], check=True, env=subprocess_env())
-
-        # Start (if already running, docker compose will detect and skip)
-        subprocess.run(compose_args + ["up", "-d"], check=True, env=subprocess_env())
 
         print("")
         print("=" * 50)
@@ -566,18 +560,12 @@ def launch_docker_cli():
     print("=" * 50)
 
     try:
-        # Check if image exists (auto-build on first run)
-        result = subprocess.run(
-            compose_args + ["images", "-q"],
-            capture_output=True,
-            **subprocess_text_kwargs(),
+        print("📦 Building Docker image from the current source tree...")
+        subprocess.run(
+            compose_args + ["build", "deepcode"],
+            check=True,
             env=subprocess_env(),
         )
-        if not result.stdout.strip():
-            print(
-                "📦 First run detected — building Docker image (may take a few minutes)..."
-            )
-            subprocess.run(compose_args + ["build"], check=True, env=subprocess_env())
 
         # Run CLI interactively
         subprocess.run(

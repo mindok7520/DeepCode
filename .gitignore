@@ -33,6 +33,7 @@ node_modules/
 
 # Caches
 .cache/
+.codegraph/
 .mypy_cache/
 .pytest_cache/
 .ruff_cache/

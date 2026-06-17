@@ -49,8 +49,7 @@ check_config() {
             echo -e "${YELLOW}⚠ 未找到 deepcode_config.json${NC}"
             echo -e "${YELLOW}  正在从模板创建...${NC}"
             cp "$PROJECT_ROOT/deepcode_config.json.example" "$PROJECT_ROOT/deepcode_config.json"
-            echo -e "${YELLOW}  ⚡ 请编辑 deepcode_config.json 填入 providers.<name>.apiKey 后重新运行${NC}"
-            exit 1
+            echo -e "${YELLOW}  默认使用 Codex/ChatGPT 网页登录；服务启动后在 Settings 中登录即可${NC}"
         else
             echo -e "${RED}❌ 缺少 deepcode_config.json 配置文件，且未找到模板${NC}"
             exit 1
@@ -67,14 +66,14 @@ ensure_dirs() {
 
 # ============ 解析命令行参数 ============
 ACTION="up"
-BUILD_FLAG=""
+BUILD_FLAG="--build"
 DETACH_FLAG=""
 
 usage() {
     echo "用法: $0 [选项]"
     echo ""
     echo "选项:"
-    echo "  --build       强制重新构建镜像"
+    echo "  --build       构建并启动（默认行为，保留用于兼容）"
     echo "  -d, --detach  后台运行（不占用终端）"
     echo "  stop          停止容器"
     echo "  restart       重启容器"
@@ -85,8 +84,8 @@ usage() {
     echo "  -h, --help    显示帮助信息"
     echo ""
     echo "示例:"
-    echo "  $0                  # 构建并启动（首次会自动构建）"
-    echo "  $0 --build          # 强制重新构建后启动"
+    echo "  $0                  # 使用当前源码构建并启动"
+    echo "  $0 --build          # 同上，保留用于兼容"
     echo "  $0 -d               # 后台启动"
     echo "  $0 stop             # 停止服务"
     echo "  $0 logs             # 查看实时日志"
@@ -151,14 +150,7 @@ case $ACTION in
         echo ""
         echo -e "${BLUE}🐳 启动 DeepCode Docker 容器...${NC}"
 
-        # 检查镜像是否存在，首次运行自动构建
-        if [ -z "$BUILD_FLAG" ]; then
-            if ! docker images | grep -q "deepcode"; then
-                echo -e "${YELLOW}⚡ 首次运行，自动构建镜像（可能需要几分钟）...${NC}"
-                BUILD_FLAG="--build"
-            fi
-        fi
-
+        echo -e "${YELLOW}⚡ 使用当前源码构建镜像（Docker 会复用缓存）...${NC}"
         dc up $BUILD_FLAG $DETACH_FLAG
 
         if [ -n "$DETACH_FLAG" ]; then
@@ -199,7 +191,9 @@ case $ACTION in
         check_docker
         echo -e "${BLUE}🔄 重启 DeepCode 容器...${NC}"
         dc down
-        dc up -d $BUILD_FLAG
+        check_config
+        ensure_dirs
+        dc up -d --build
         echo -e "${GREEN}✓ 服务已重启${NC}"
         echo -e "   访问: http://localhost:8000"
         ;;
@@ -232,6 +226,7 @@ case $ACTION in
         echo ""
         echo -e "${BLUE}🖥️  启动 DeepCode CLI (Docker)...${NC}"
         echo ""
+        dc build deepcode
         dc run --rm -it deepcode cli "$@"
         ;;
 

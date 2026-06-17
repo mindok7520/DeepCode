@@ -8,11 +8,15 @@ place so launchers, FastAPI, and MCP stdio clients inherit the same behavior.
 
 from __future__ import annotations
 
+import errno
 import io
+import json
 import os
 import shutil
 import sys
+import tempfile
 from collections.abc import Mapping
+from pathlib import Path
 from typing import Any
 
 UTF8_ENV: dict[str, str] = {
@@ -21,6 +25,7 @@ UTF8_ENV: dict[str, str] = {
 }
 
 _WINDOWS_SHELL_LAUNCHERS = frozenset(("npx", "npm", "pnpm", "yarn", "bunx"))
+_REPLACE_FALLBACK_ERRNOS = {errno.EBUSY, errno.EXDEV}
 
 
 def configure_utf8_stdio() -> None:
@@ -62,6 +67,71 @@ def subprocess_env(extra: Mapping[str, Any] | None = None) -> dict[str, str]:
 def subprocess_text_kwargs() -> dict[str, Any]:
     """Text-mode kwargs that avoid locale-dependent decode failures."""
     return {"text": True, "encoding": "utf-8", "errors": "replace"}
+
+
+def restrict_private_permissions(path: str | Path, *, directory: bool = False) -> None:
+    """Best-effort private permissions for local secret-bearing files."""
+    if os.name == "nt":
+        return
+
+    target = Path(path)
+    try:
+        if directory or (target.exists() and target.is_dir()):
+            os.chmod(target, 0o700)
+            return
+        if target.exists():
+            os.chmod(target, 0o600)
+    except OSError:
+        return
+
+
+def write_private_json_file(
+    path: str | Path,
+    payload: Any,
+    *,
+    ensure_ascii: bool = False,
+    private_parent: bool = False,
+) -> None:
+    """Atomically write a JSON file and make it private where supported."""
+    target = Path(path).expanduser()
+    target.parent.mkdir(parents=True, exist_ok=True)
+    if private_parent:
+        restrict_private_permissions(target.parent, directory=True)
+
+    tmp_name = ""
+    fd, tmp_name = tempfile.mkstemp(
+        prefix=f".{target.name}.",
+        suffix=".tmp",
+        dir=str(target.parent),
+        text=True,
+    )
+    tmp_path = Path(tmp_name)
+
+    def write_json(fh: Any) -> None:
+        json.dump(payload, fh, indent=2, ensure_ascii=ensure_ascii)
+        fh.write("\n")
+
+    try:
+        with os.fdopen(fd, "w", encoding="utf-8") as fh:
+            write_json(fh)
+        restrict_private_permissions(tmp_path)
+        try:
+            os.replace(tmp_path, target)
+        except OSError as exc:
+            if exc.errno not in _REPLACE_FALLBACK_ERRNOS:
+                raise
+            # Docker single-file bind mounts cannot always be replaced as an
+            # inode, even when the file itself is writable. Fall back to
+            # truncating the existing file so Settings saves still work.
+            with target.open("w", encoding="utf-8") as fh:
+                write_json(fh)
+        restrict_private_permissions(target)
+    finally:
+        if tmp_path.exists():
+            try:
+                tmp_path.unlink()
+            except OSError:
+                pass
 
 
 def _basename(command: str) -> str:

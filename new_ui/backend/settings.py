@@ -34,19 +34,22 @@ CONFIG_PATH: Path = default_config_path()
 class Settings(BaseSettings):
     """Application settings (server-side only, separate from LLM config)."""
 
-    host: str = "0.0.0.0"
+    host: str = "127.0.0.1"
     port: int = 8000
-    debug: bool = True
+    debug: bool = False
 
     # Environment: "docker" for production, anything else for development
     env: str = ""
 
     # CORS settings — in Docker mode the frontend is served by FastAPI
     # (same origin) so the explicit list below is enough for dev.
-    cors_origins: list = [
+    cors_origins: list[str] = [
         "http://localhost:5173",
+        "http://127.0.0.1:5173",
         "http://localhost:3000",
+        "http://127.0.0.1:3000",
         "http://localhost:8000",
+        "http://127.0.0.1:8000",
     ]
 
     max_upload_size: int = 100 * 1024 * 1024  # 100 MB

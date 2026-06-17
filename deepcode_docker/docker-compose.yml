@@ -5,13 +5,17 @@ services:
       dockerfile: deepcode_docker/Dockerfile
     container_name: deepcode
     ports:
-      - "8000:8000"
+      - "${DEEPCODE_BIND_ADDRESS:-127.0.0.1}:${DEEPCODE_HOST_PORT:-8000}:8000"
       # Codex/ChatGPT browser-login callback ports
-      - "1455:1455"
-      - "1457:1457"
+      - "${DEEPCODE_BIND_ADDRESS:-127.0.0.1}:${CODEX_AUTH_CALLBACK_PORT:-1455}:${CODEX_AUTH_CALLBACK_PORT:-1455}"
+      - "${DEEPCODE_BIND_ADDRESS:-127.0.0.1}:${CODEX_AUTH_FALLBACK_CALLBACK_PORT:-1457}:${CODEX_AUTH_FALLBACK_CALLBACK_PORT:-1457}"
     volumes:
-      # Configuration (required) — single JSON file with providers + MCP servers
-      - ../deepcode_config.json:/app/deepcode_config.json:ro
+      # Configuration (required) — writable by the Settings UI, but never auto-created
+      - type: bind
+        source: ../deepcode_config.json
+        target: /app/deepcode_config.json
+        bind:
+          create_host_path: false
 
       # Persistent data
       - ../deepcode_lab:/app/deepcode_lab
@@ -23,18 +27,26 @@ services:
       - DEEPCODE_PORT=8000
       - CODEX_HOME=/root/.codex
       - CODEX_AUTH_CALLBACK_BIND_HOST=0.0.0.0
+      - CODEX_AUTH_CALLBACK_PORT=${CODEX_AUTH_CALLBACK_PORT:-1455}
+      - CODEX_AUTH_FALLBACK_CALLBACK_PORT=${CODEX_AUTH_FALLBACK_CALLBACK_PORT:-1457}
     restart: unless-stopped
 
   nanobot:
+    profiles: ["nanobot"]
     build:
       context: ..
       dockerfile: nanobot/Dockerfile
     container_name: nanobot
     ports:
-      - "18790:18790"
+      - "${DEEPCODE_BIND_ADDRESS:-127.0.0.1}:${NANOBOT_HOST_PORT:-18790}:18790"
     volumes:
       # nanobot configuration (飞书/Telegram token 等)
-      - ../nanobot_config.json:/root/.nanobot/config.json:ro
+      - type: bind
+        source: ../nanobot_config.json
+        target: /root/.nanobot/config.json
+        read_only: true
+        bind:
+          create_host_path: false
 
       # Persistent workspace data
       - nanobot-workspace:/root/.nanobot/workspace

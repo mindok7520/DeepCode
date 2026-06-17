@@ -40,9 +40,14 @@ from models.responses import (
     OpenRouterModelsResponse,
     SettingsResponse,
 )
+from core.platform_compat import write_private_json_file
 
 
 router = APIRouter()
+
+
+def _write_deepcode_config(config: dict) -> None:
+    write_private_json_file(CONFIG_PATH, config, ensure_ascii=False)
 
 
 @router.get("/settings", response_model=SettingsResponse)
@@ -141,10 +146,7 @@ async def set_llm_provider(request: LLMProviderUpdateRequest):
         defaults = agents.setdefault("defaults", {})
         defaults["provider"] = spec.name
 
-        CONFIG_PATH.parent.mkdir(parents=True, exist_ok=True)
-        with open(CONFIG_PATH, "w", encoding="utf-8") as f:
-            json.dump(config, f, indent=2, ensure_ascii=False)
-            f.write("\n")
+        _write_deepcode_config(config)
 
         # Force the runtime to reload on the next access so subsequent
         # workflow calls see the new provider selection.
@@ -213,10 +215,7 @@ async def set_llm_models(request: LLMModelsUpdateRequest):
         implementation["provider"] = spec.name
         implementation["model"] = models["implementation"]
 
-        CONFIG_PATH.parent.mkdir(parents=True, exist_ok=True)
-        with open(CONFIG_PATH, "w", encoding="utf-8") as f:
-            json.dump(config, f, indent=2, ensure_ascii=False)
-            f.write("\n")
+        _write_deepcode_config(config)
 
         set_runtime(None)
 

@@ -68,6 +68,7 @@ COPY tools/ ./tools/
 COPY utils/ ./utils/
 COPY workflows/ ./workflows/
 COPY cli/ ./cli/
+COPY core/ ./core/
 COPY ui/ ./ui/
 COPY new_ui/backend/ ./new_ui/backend/
 

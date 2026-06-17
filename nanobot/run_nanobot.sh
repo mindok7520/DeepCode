@@ -21,7 +21,7 @@ NC='\033[0m'
 
 # docker compose wrapper
 dc() {
-    docker compose -f "$COMPOSE_FILE" "$@"
+    docker compose -f "$COMPOSE_FILE" --profile nanobot "$@"
 }
 
 print_banner() {
@@ -59,9 +59,8 @@ check_deepcode_config() {
         if [ -f "$PROJECT_ROOT/deepcode_config.json.example" ]; then
             echo -e "${YELLOW}   ⚠ 未找到 deepcode_config.json，从模板创建...${NC}"
             cp "$PROJECT_ROOT/deepcode_config.json.example" "$PROJECT_ROOT/deepcode_config.json"
-            echo -e "${YELLOW}   ⚡ 请编辑 deepcode_config.json 填入 providers.<name>.apiKey 后重新运行${NC}"
+            echo -e "${YELLOW}   默认使用 Codex/ChatGPT 网页登录；服务启动后在 Settings 中登录即可${NC}"
             echo -e "      文件路径: $PROJECT_ROOT/deepcode_config.json"
-            exit 1
         else
             echo -e "${RED}   ❌ 缺少 deepcode_config.json 且无模板文件${NC}"
             exit 1
@@ -78,9 +77,8 @@ check_nanobot_config() {
         if [ -f "$PROJECT_ROOT/nanobot_config.json.example" ]; then
             echo -e "${YELLOW}   ⚠ 未找到 nanobot_config.json，从模板创建...${NC}"
             cp "$PROJECT_ROOT/nanobot_config.json.example" "$PROJECT_ROOT/nanobot_config.json"
-            echo -e "${YELLOW}   ⚡ 请编辑 nanobot_config.json 填入以下信息后重新运行:${NC}"
-            echo -e "      - 飞书 appId 和 appSecret"
-            echo -e "      - LLM Provider API Key (如 OpenRouter)"
+            echo -e "${YELLOW}   已使用安全默认模板创建（所有聊天渠道默认关闭）${NC}"
+            echo -e "${YELLOW}   如需 Discord/飞书/Telegram，请编辑 nanobot_config.json${NC}"
             echo -e "      文件路径: $PROJECT_ROOT/nanobot_config.json"
             exit 1
         else
@@ -115,36 +113,12 @@ ensure_dirs() {
 check_and_build() {
     echo -e "${BLUE}[5/5] 检查 Docker 镜像...${NC}"
 
-    local need_build_deepcode=false
-    local need_build_nanobot=false
-
-    # 检查 deepcode 镜像是否存在
-    if ! docker images --format '{{.Repository}}' | grep -q "deepcode"; then
-        need_build_deepcode=true
-    fi
-
-    # 检查 nanobot 镜像是否存在
-    if ! docker images --format '{{.Repository}}' | grep -q "nanobot"; then
-        need_build_nanobot=true
-    fi
-
     if [ "$FORCE_BUILD" = true ]; then
         echo -e "${YELLOW}   强制重新构建所有镜像...${NC}"
-        BUILD_FLAG="--build"
-    elif [ "$need_build_deepcode" = true ] || [ "$need_build_nanobot" = true ]; then
-        echo -e "${YELLOW}   检测到缺少镜像，首次构建中...${NC}"
-        if [ "$need_build_deepcode" = true ]; then
-            echo -e "${YELLOW}   - deepcode 镜像需要构建${NC}"
-        fi
-        if [ "$need_build_nanobot" = true ]; then
-            echo -e "${YELLOW}   - nanobot 镜像需要构建${NC}"
-        fi
-        BUILD_FLAG="--build"
     else
-        echo -e "${GREEN}   ✓ deepcode 镜像已存在，跳过构建${NC}"
-        echo -e "${GREEN}   ✓ nanobot 镜像已存在，跳过构建${NC}"
-        BUILD_FLAG=""
+        echo -e "${YELLOW}   使用当前源码构建镜像（Docker 会复用缓存）...${NC}"
     fi
+    BUILD_FLAG="--build"
 }
 
 # ============ 启动服务 ============
@@ -190,9 +164,9 @@ usage() {
     echo "用法: $0 [选项]"
     echo ""
     echo "选项:"
-    echo "  (无参数)      检查环境并启动所有服务 (前台运行)"
+    echo "  (无参数)      检查环境、使用当前源码构建并启动所有服务 (前台运行)"
     echo "  -d, --detach  后台运行"
-    echo "  --build       强制重新构建 Docker 镜像"
+    echo "  --build       构建并启动（默认行为，保留用于兼容）"
     echo "  stop          停止所有服务"
     echo "  restart       重启所有服务"
     echo "  logs          查看实时日志"
@@ -201,17 +175,16 @@ usage() {
     echo "  -h, --help    显示帮助信息"
     echo ""
     echo "示例:"
-    echo "  $0              # 首次运行: 检查配置 → 构建镜像 → 启动"
-    echo "  $0              # 再次运行: 跳过构建 → 直接启动"
+    echo "  $0              # 检查配置 → 使用当前源码构建镜像 → 启动"
     echo "  $0 -d           # 后台启动"
-    echo "  $0 --build      # 强制重新构建后启动"
+    echo "  $0 --build      # 同上，保留用于兼容"
     echo "  $0 stop         # 停止服务"
     echo "  $0 logs         # 查看日志"
 }
 
 # ============ 解析命令行参数 ============
 ACTION="up"
-BUILD_FLAG=""
+BUILD_FLAG="--build"
 DETACH_FLAG=""
 FORCE_BUILD=false
 

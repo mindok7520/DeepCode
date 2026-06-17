@@ -4,7 +4,6 @@ Handles file upload and download operations
 """
 
 import uuid
-import shutil
 from pathlib import Path
 
 from fastapi import APIRouter, File, UploadFile, HTTPException
@@ -17,6 +16,7 @@ router = APIRouter()
 
 # In-memory file registry (in production, use a database)
 _file_registry: dict = {}
+_CHUNK_SIZE = 1024 * 1024
 
 
 def _is_git_lfs_pointer(file_path: Path) -> bool:
@@ -28,12 +28,32 @@ def _is_git_lfs_pointer(file_path: Path) -> bool:
     return header.startswith(b"version https://git-lfs.github.com/spec/")
 
 
+def _upload_root() -> Path:
+    return Path(settings.upload_dir).expanduser().resolve()
+
+
+def _sanitize_original_name(filename: str | None, fallback: str) -> str:
+    name = (filename or fallback).replace("\\", "/").rsplit("/", maxsplit=1)[-1]
+    return name or fallback
+
+
+def _resolve_registered_path(file_info: dict) -> Path:
+    root = _upload_root()
+    path = Path(file_info["path"]).expanduser().resolve()
+    try:
+        path.relative_to(root)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail="Invalid uploaded file path") from exc
+    return path
+
+
 @router.post("/upload")
 async def upload_file(file: UploadFile = File(...)):
     """Upload a file (PDF, markdown, etc.)"""
     # Validate file type
     allowed_types = {".pdf", ".md", ".txt", ".markdown"}
-    file_ext = Path(file.filename).suffix.lower()
+    original_name = _sanitize_original_name(file.filename, "upload")
+    file_ext = Path(original_name).suffix.lower()
 
     if file_ext not in allowed_types:
         raise HTTPException(
@@ -44,18 +64,36 @@ async def upload_file(file: UploadFile = File(...)):
     # Generate unique file ID
     file_id = str(uuid.uuid4())
     safe_filename = f"{file_id}{file_ext}"
-    file_path = Path(settings.upload_dir) / safe_filename
+    upload_root = _upload_root()
+    file_path = upload_root / safe_filename
 
     try:
         # Ensure upload directory exists
-        file_path.parent.mkdir(parents=True, exist_ok=True)
+        upload_root.mkdir(parents=True, exist_ok=True)
 
-        # Save file
-        with open(file_path, "wb") as buffer:
-            shutil.copyfileobj(file.file, buffer)
+        # Save file with a hard size cap while streaming. This avoids writing
+        # an entire oversized upload before rejecting it.
+        file_size = 0
+        with file_path.open("wb") as buffer:
+            while True:
+                chunk = await file.read(_CHUNK_SIZE)
+                if not chunk:
+                    break
+                file_size += len(chunk)
+                if file_size > settings.max_upload_size:
+                    file_path.unlink(missing_ok=True)
+                    raise HTTPException(
+                        status_code=400,
+                        detail=(
+                            "File size exceeds limit of "
+                            f"{settings.max_upload_size // (1024*1024)}MB"
+                        ),
+                    )
+                buffer.write(chunk)
 
-        # Get file size
-        file_size = file_path.stat().st_size
+        if file_size == 0:
+            file_path.unlink(missing_ok=True)
+            raise HTTPException(status_code=400, detail="Uploaded file is empty")
 
         if _is_git_lfs_pointer(file_path):
             file_path.unlink(missing_ok=True)
@@ -67,18 +105,10 @@ async def upload_file(file: UploadFile = File(...)):
                 ),
             )
 
-        # Check size limit
-        if file_size > settings.max_upload_size:
-            file_path.unlink()  # Delete oversized file
-            raise HTTPException(
-                status_code=400,
-                detail=f"File size exceeds limit of {settings.max_upload_size // (1024*1024)}MB",
-            )
-
         # Register file
         _file_registry[file_id] = {
             "id": file_id,
-            "original_name": file.filename,
+            "original_name": original_name,
             "path": str(file_path),
             "size": file_size,
             "type": file_ext,
@@ -86,7 +116,7 @@ async def upload_file(file: UploadFile = File(...)):
 
         return {
             "file_id": file_id,
-            "filename": file.filename,
+            "filename": original_name,
             "path": str(file_path),
             "size": file_size,
         }
@@ -94,6 +124,7 @@ async def upload_file(file: UploadFile = File(...)):
     except HTTPException:
         raise
     except Exception as e:
+        file_path.unlink(missing_ok=True)
         raise HTTPException(
             status_code=500,
             detail=f"Failed to upload file: {str(e)}",
@@ -108,7 +139,7 @@ async def download_file(file_id: str):
     if not file_info:
         raise HTTPException(status_code=404, detail="File not found")
 
-    file_path = Path(file_info["path"])
+    file_path = _resolve_registered_path(file_info)
 
     if not file_path.exists():
         raise HTTPException(status_code=404, detail="File no longer exists")
@@ -128,7 +159,7 @@ async def delete_file(file_id: str):
     if not file_info:
         raise HTTPException(status_code=404, detail="File not found")
 
-    file_path = Path(file_info["path"])
+    file_path = _resolve_registered_path(file_info)
 
     try:
         if file_path.exists():

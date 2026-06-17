@@ -23,6 +23,8 @@ from urllib.parse import parse_qs, urlencode, urlparse
 
 import httpx
 
+from core.platform_compat import write_private_json_file
+
 
 CODEX_CLIENT_ID = "app_EMoamEEZ73f0CkXaXp7hrann"
 CODEX_DEFAULT_ISSUER = "https://auth.openai.com"
@@ -232,10 +234,7 @@ def _read_auth_json(codex_home: Path | None = None) -> dict[str, Any]:
 
 def _write_auth_json(auth: dict[str, Any], codex_home: Path | None = None) -> None:
     auth_file = get_auth_file(codex_home)
-    auth_file.parent.mkdir(parents=True, exist_ok=True)
-    with auth_file.open("w", encoding="utf-8") as f:
-        json.dump(auth, f, indent=2)
-        f.write("\n")
+    write_private_json_file(auth_file, auth, ensure_ascii=False, private_parent=True)
 
 
 def _get_token_string(tokens: dict[str, Any], key: str) -> str:
@@ -627,6 +626,47 @@ def _callback_bind_host() -> str:
     )
 
 
+def _int_env(name: str, default: int) -> int:
+    raw = os.environ.get(name)
+    if raw is None or not raw.strip():
+        return default
+    try:
+        port = int(raw)
+    except ValueError as exc:
+        raise CodexAuthError(f"{name} 값은 포트 번호여야 합니다.") from exc
+    if not 1 <= port <= 65535:
+        raise CodexAuthError(f"{name} 값은 1-65535 범위여야 합니다.")
+    return port
+
+
+def _callback_ports() -> tuple[int, ...]:
+    configured = os.environ.get("CODEX_AUTH_CALLBACK_PORTS")
+    if configured:
+        ports: list[int] = []
+        for raw in configured.split(","):
+            value = raw.strip()
+            if not value:
+                continue
+            try:
+                port = int(value)
+            except ValueError as exc:
+                raise CodexAuthError(
+                    "CODEX_AUTH_CALLBACK_PORTS 값은 쉼표로 구분한 포트 번호여야 합니다."
+                ) from exc
+            if not 1 <= port <= 65535:
+                raise CodexAuthError(
+                    "CODEX_AUTH_CALLBACK_PORTS 값은 1-65535 범위여야 합니다."
+                )
+            if port not in ports:
+                ports.append(port)
+        if ports:
+            return tuple(ports)
+
+    first = _int_env("CODEX_AUTH_CALLBACK_PORT", CODEX_DEFAULT_PORT)
+    fallback = _int_env("CODEX_AUTH_FALLBACK_CALLBACK_PORT", CODEX_FALLBACK_PORT)
+    return (first,) if first == fallback else (first, fallback)
+
+
 def _bind_callback_server(port: int) -> ThreadingHTTPServer:
     return ThreadingHTTPServer((_callback_bind_host(), port), _CodexLoginCallbackHandler)
 
@@ -639,7 +679,8 @@ def _cancel_existing_server(port: int) -> None:
 
 
 def _start_callback_server() -> tuple[ThreadingHTTPServer, int]:
-    for port in (CODEX_DEFAULT_PORT, CODEX_FALLBACK_PORT):
+    ports = _callback_ports()
+    for port in ports:
         for attempt in range(2):
             try:
                 return _bind_callback_server(port), port
@@ -649,7 +690,9 @@ def _start_callback_server() -> tuple[ThreadingHTTPServer, int]:
                     continue
                 break
     raise CodexAuthError(
-        f"Codex 로그인 callback 포트({CODEX_DEFAULT_PORT}, {CODEX_FALLBACK_PORT})를 열 수 없습니다."
+        "Codex 로그인 callback 포트("
+        + ", ".join(str(port) for port in ports)
+        + ")를 열 수 없습니다."
     )
 
 
