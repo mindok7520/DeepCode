@@ -274,6 +274,35 @@ class WorkflowService:
         await asyncio.sleep(0.5)
         return result
 
+    async def _mark_task_error(
+        self,
+        task_id: str,
+        error: Exception,
+    ) -> Dict[str, Any]:
+        task = self._tasks.get(task_id)
+        message = str(error)
+        if task:
+            task.status = "error"
+            task.message = message
+            task.error = message
+            task.completed_at = datetime.utcnow()
+            self._record_session_outcome(
+                task,
+                role="system",
+                body=f"Workflow failed: {message}",
+            )
+
+        await self._broadcast(
+            task_id,
+            {
+                "type": "error",
+                "task_id": task_id,
+                "error": message,
+                "timestamp": datetime.utcnow().isoformat(),
+            },
+        )
+        return {"status": "error", "error": message}
+
     async def execute_paper_to_code(
         self,
         task_id: str,
@@ -283,50 +312,55 @@ class WorkflowService:
         enable_user_interaction: bool = True,
     ) -> Dict[str, Any]:
         """Execute paper-to-code workflow"""
-        # Lazy imports - DeepCode modules found via sys.path set in main.py
-        from core.compat import MCPApp
-        from core.observability import bind_task, pop_task, set_session
-        from workflows.agent_orchestration_engine import (
-            execute_multi_agent_research_pipeline,
-        )
-        from workflows.plan_review_runtime import PlanReviewCancelled
-
         task = self._tasks.get(task_id)
         if not task:
             return {"status": "error", "error": "Task not found"}
 
         task.status = "running"
         task.started_at = datetime.utcnow()
-
-        # Bind task_id into the async context so every loguru call and
-        # provider/MCP record made downstream is automatically attributed
-        # to this task (no business-code change needed).
-        short_task_id = str(task_id)[:8] if task_id else None
-        task.task_short_id = short_task_id
-        task.task_kind = self._infer_task_kind(input_type, task.task_kind)
-        task_token = bind_task(short_task_id)
-        session_id = getattr(task, "session_id", None)
-        session_token = set_session(session_id) if session_id else None
-
-        # Record the user-facing intent in the session transcript so the
-        # session listing UI / CLI shows a meaningful preview.
-        if session_id:
-            try:
-                session_store.append_message(
-                    session_id,
-                    role="user",
-                    content=f"[{task.task_kind}] {input_source}",
-                    task_id_ref=short_task_id,
-                    metadata={"input_type": input_type},
-                )
-            except Exception:
-                pass
+        original_cwd = os.getcwd()
+        task_token = None
+        session_token = None
+        PlanReviewCancelled = None
 
         try:
+            # Lazy imports - DeepCode modules found via sys.path set in main.py.
+            # Keep them inside the guarded section so missing local dependencies
+            # surface as a task error instead of leaving the task stuck pending.
+            from core.compat import MCPApp
+            from core.observability import bind_task, pop_task, set_session
+            from workflows.agent_orchestration_engine import (
+                execute_multi_agent_research_pipeline,
+            )
+            from workflows.plan_review_runtime import PlanReviewCancelled
+
+            # Bind task_id into the async context so every loguru call and
+            # provider/MCP record made downstream is automatically attributed
+            # to this task (no business-code change needed).
+            short_task_id = str(task_id)[:8] if task_id else None
+            task.task_short_id = short_task_id
+            task.task_kind = self._infer_task_kind(input_type, task.task_kind)
+            task_token = bind_task(short_task_id)
+            session_id = getattr(task, "session_id", None)
+            session_token = set_session(session_id) if session_id else None
+
+            # Record the user-facing intent in the session transcript so the
+            # session listing UI / CLI shows a meaningful preview.
+            if session_id:
+                try:
+                    session_store.append_message(
+                        session_id,
+                        role="user",
+                        content=f"[{task.task_kind}] {input_source}",
+                        task_id_ref=short_task_id,
+                        metadata={"input_type": input_type},
+                    )
+                except Exception:
+                    pass
+
             progress_callback = await self._create_progress_callback(task_id)
 
             # Change to project root directory for MCP server paths to work correctly
-            original_cwd = os.getcwd()
             os.chdir(PROJECT_ROOT)
 
             # Create MCP app context with explicit config path
@@ -378,30 +412,15 @@ class WorkflowService:
 
                 return task.result
 
-        except (PlanReviewCancelled, asyncio.CancelledError) as e:
+        except asyncio.CancelledError as e:
             reason = getattr(e, "reason", None) or str(e) or "Workflow cancelled"
             return await self._mark_task_cancelled(task_id, reason)
 
         except Exception as e:
-            task.status = "error"
-            task.error = str(e)
-            task.completed_at = datetime.utcnow()
-            self._record_session_outcome(
-                task, role="system", body=f"Workflow failed: {e}"
-            )
-
-            # Broadcast error signal to all subscribers
-            await self._broadcast(
-                task_id,
-                {
-                    "type": "error",
-                    "task_id": task_id,
-                    "error": str(e),
-                    "timestamp": datetime.utcnow().isoformat(),
-                },
-            )
-
-            return {"status": "error", "error": str(e)}
+            if PlanReviewCancelled is not None and isinstance(e, PlanReviewCancelled):
+                reason = getattr(e, "reason", None) or str(e) or "Workflow cancelled"
+                return await self._mark_task_cancelled(task_id, reason)
+            return await self._mark_task_error(task_id, e)
 
         finally:
             # Restore original working directory
@@ -411,7 +430,8 @@ class WorkflowService:
                 from core.observability import pop_session as _pop_session
 
                 _pop_session(session_token)
-            pop_task(task_token)
+            if task_token is not None:
+                pop_task(task_token)
 
     async def execute_chat_planning(
         self,
@@ -421,45 +441,50 @@ class WorkflowService:
         enable_user_interaction: bool = True,  # Enable User-in-Loop by default
     ) -> Dict[str, Any]:
         """Execute chat-based planning workflow"""
-        # Lazy imports - DeepCode modules found via sys.path set in main.py
-        from core.compat import MCPApp
-        from core.observability import bind_task, pop_task, set_session
-        from workflows.agent_orchestration_engine import (
-            execute_chat_based_planning_pipeline,
-        )
-        from workflows.plan_review_runtime import PlanReviewCancelled
-
         task = self._tasks.get(task_id)
         if not task:
             return {"status": "error", "error": "Task not found"}
 
         task.status = "running"
         task.started_at = datetime.utcnow()
-
-        short_task_id = str(task_id)[:8] if task_id else None
-        task.task_short_id = short_task_id
-        task.task_kind = "chat"
-        task_token = bind_task(short_task_id)
-        session_id = getattr(task, "session_id", None)
-        session_token = set_session(session_id) if session_id else None
-
-        if session_id:
-            try:
-                session_store.append_message(
-                    session_id,
-                    role="user",
-                    content=requirements,
-                    task_id_ref=short_task_id,
-                    metadata={"input_type": "chat"},
-                )
-            except Exception:
-                pass
+        original_cwd = os.getcwd()
+        task_token = None
+        session_token = None
+        PlanReviewCancelled = None
 
         try:
+            # Lazy imports - DeepCode modules found via sys.path set in main.py.
+            # Keep them inside the guarded section so missing local dependencies
+            # surface as a task error instead of leaving the task stuck pending.
+            from core.compat import MCPApp
+            from core.observability import bind_task, pop_task, set_session
+            from workflows.agent_orchestration_engine import (
+                execute_chat_based_planning_pipeline,
+            )
+            from workflows.plan_review_runtime import PlanReviewCancelled
+
+            short_task_id = str(task_id)[:8] if task_id else None
+            task.task_short_id = short_task_id
+            task.task_kind = "chat"
+            task_token = bind_task(short_task_id)
+            session_id = getattr(task, "session_id", None)
+            session_token = set_session(session_id) if session_id else None
+
+            if session_id:
+                try:
+                    session_store.append_message(
+                        session_id,
+                        role="user",
+                        content=requirements,
+                        task_id_ref=short_task_id,
+                        metadata={"input_type": "chat"},
+                    )
+                except Exception:
+                    pass
+
             progress_callback = await self._create_progress_callback(task_id)
 
             # Change to project root directory for MCP server paths to work correctly
-            original_cwd = os.getcwd()
             os.chdir(PROJECT_ROOT)
 
             # Create MCP app context with explicit config path
@@ -559,30 +584,15 @@ class WorkflowService:
 
                 return task.result
 
-        except (PlanReviewCancelled, asyncio.CancelledError) as e:
+        except asyncio.CancelledError as e:
             reason = getattr(e, "reason", None) or str(e) or "Workflow cancelled"
             return await self._mark_task_cancelled(task_id, reason)
 
         except Exception as e:
-            task.status = "error"
-            task.error = str(e)
-            task.completed_at = datetime.utcnow()
-            self._record_session_outcome(
-                task, role="system", body=f"Workflow failed: {e}"
-            )
-
-            # Broadcast error signal to all subscribers
-            await self._broadcast(
-                task_id,
-                {
-                    "type": "error",
-                    "task_id": task_id,
-                    "error": str(e),
-                    "timestamp": datetime.utcnow().isoformat(),
-                },
-            )
-
-            return {"status": "error", "error": str(e)}
+            if PlanReviewCancelled is not None and isinstance(e, PlanReviewCancelled):
+                reason = getattr(e, "reason", None) or str(e) or "Workflow cancelled"
+                return await self._mark_task_cancelled(task_id, reason)
+            return await self._mark_task_error(task_id, e)
 
         finally:
             # Restore original working directory
@@ -591,7 +601,8 @@ class WorkflowService:
                 from core.observability import pop_session as _pop_session
 
                 _pop_session(session_token)
-            pop_task(task_token)
+            if task_token is not None:
+                pop_task(task_token)
 
     def cancel_task(self, task_id: str) -> bool:
         """Cancel a running task"""
