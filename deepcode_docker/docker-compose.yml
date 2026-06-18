@@ -6,9 +6,9 @@ services:
     container_name: deepcode
     ports:
       - "${DEEPCODE_BIND_ADDRESS:-127.0.0.1}:${DEEPCODE_HOST_PORT:-8000}:8000"
-      # Codex/ChatGPT browser-login callback ports
-      - "${DEEPCODE_BIND_ADDRESS:-127.0.0.1}:${CODEX_AUTH_CALLBACK_PORT:-1455}:${CODEX_AUTH_CALLBACK_PORT:-1455}"
-      - "${DEEPCODE_BIND_ADDRESS:-127.0.0.1}:${CODEX_AUTH_FALLBACK_CALLBACK_PORT:-1457}:${CODEX_AUTH_FALLBACK_CALLBACK_PORT:-1457}"
+      # Codex/ChatGPT browser-login callback port.
+      # OpenAI OAuth redirect URIs are registered for 1455/1457; do not use arbitrary ports.
+      - "${DEEPCODE_BIND_ADDRESS:-127.0.0.1}:${CODEX_AUTH_CALLBACK_PORT:-1457}:${CODEX_AUTH_CALLBACK_PORT:-1457}"
     volumes:
       # Configuration (required) — writable by the Settings UI, but never auto-created
       - type: bind
@@ -27,8 +27,8 @@ services:
       - DEEPCODE_PORT=8000
       - CODEX_HOME=/root/.codex
       - CODEX_AUTH_CALLBACK_BIND_HOST=0.0.0.0
-      - CODEX_AUTH_CALLBACK_PORT=${CODEX_AUTH_CALLBACK_PORT:-1455}
-      - CODEX_AUTH_FALLBACK_CALLBACK_PORT=${CODEX_AUTH_FALLBACK_CALLBACK_PORT:-1457}
+      - CODEX_AUTH_CALLBACK_PORT=${CODEX_AUTH_CALLBACK_PORT:-1457}
+      - CODEX_AUTH_FALLBACK_CALLBACK_PORT=${CODEX_AUTH_CALLBACK_PORT:-1457}
     restart: unless-stopped
 
   nanobot:

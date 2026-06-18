@@ -34,6 +34,7 @@ CODEX_DEFAULT_VERSION = "0.128.0"
 CODEX_DEFAULT_PORT = 1455
 CODEX_FALLBACK_PORT = 1457
 CODEX_DEFAULT_CALLBACK_BIND_HOST = "127.0.0.1"
+CODEX_ALLOWED_CALLBACK_PORTS = frozenset((CODEX_DEFAULT_PORT, CODEX_FALLBACK_PORT))
 CODEX_AUTH_SCOPE = (
     "openid profile email offline_access api.connectors.read api.connectors.invoke"
 )
@@ -660,11 +661,27 @@ def _callback_ports() -> tuple[int, ...]:
             if port not in ports:
                 ports.append(port)
         if ports:
+            _validate_callback_ports(ports)
             return tuple(ports)
 
     first = _int_env("CODEX_AUTH_CALLBACK_PORT", CODEX_DEFAULT_PORT)
     fallback = _int_env("CODEX_AUTH_FALLBACK_CALLBACK_PORT", CODEX_FALLBACK_PORT)
-    return (first,) if first == fallback else (first, fallback)
+    ports = (first,) if first == fallback else (first, fallback)
+    _validate_callback_ports(ports)
+    return ports
+
+
+def _validate_callback_ports(ports: tuple[int, ...] | list[int]) -> None:
+    if os.environ.get("CODEX_AUTH_ALLOW_CUSTOM_CALLBACK_PORTS") == "1":
+        return
+    invalid = [port for port in ports if port not in CODEX_ALLOWED_CALLBACK_PORTS]
+    if invalid:
+        allowed = ", ".join(str(port) for port in sorted(CODEX_ALLOWED_CALLBACK_PORTS))
+        raise CodexAuthError(
+            "Codex browser login only supports callback ports "
+            f"{allowed}. Current value: {', '.join(str(port) for port in invalid)}. "
+            "Use 1455 or 1457 for Docker host publishing."
+        )
 
 
 def _bind_callback_server(port: int) -> ThreadingHTTPServer:

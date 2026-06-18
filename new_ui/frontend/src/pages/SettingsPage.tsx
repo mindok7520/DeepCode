@@ -69,19 +69,40 @@ export default function SettingsPage() {
   });
 
   const codexLoginMutation = useMutation({
-    mutationFn: configApi.startCodexLogin,
-    onSuccess: (login) => {
-      window.open(login.auth_url, '_blank', 'noopener,noreferrer');
+    mutationFn: async (popup: Window | null) => {
+      const login = await configApi.startCodexLogin();
+      return { login, popup };
+    },
+    onSuccess: ({ login, popup }) => {
+      if (popup && !popup.closed) {
+        popup.location.href = login.auth_url;
+      } else {
+        window.open(login.auth_url, '_blank', 'noopener,noreferrer');
+      }
       toast.info('브라우저 로그인을 시작했습니다', '열린 창에서 ChatGPT 계정 로그인을 완료해 주세요');
       window.setTimeout(() => {
         queryClient.invalidateQueries({ queryKey: ['codex-auth-status'] });
         queryClient.invalidateQueries({ queryKey: ['codex-models'] });
       }, 4000);
     },
-    onError: () => {
+    onError: (_error, popup) => {
+      if (popup && !popup.closed) {
+        popup.close();
+      }
       toast.error('로그인 시작 실패', 'Codex 로그인 callback 포트를 열 수 없습니다');
     },
   });
+
+  const handleCodexLogin = () => {
+    const popup = window.open('about:blank', '_blank');
+    if (popup) {
+      popup.opener = null;
+      popup.document.title = 'Codex Login';
+      popup.document.body.innerHTML =
+        '<main style="font-family: system-ui, sans-serif; margin: 3rem; line-height: 1.6;"><h1>Codex Login</h1><p>Preparing the ChatGPT login page...</p></main>';
+    }
+    codexLoginMutation.mutate(popup);
+  };
 
   const codexLogoutMutation = useMutation({
     mutationFn: configApi.logoutCodex,
@@ -508,7 +529,7 @@ export default function SettingsPage() {
                   ) : (
                     <Button
                       size="sm"
-                      onClick={() => codexLoginMutation.mutate()}
+                      onClick={handleCodexLogin}
                       isLoading={codexLoginMutation.isPending}
                     >
                       <LogIn className="mr-1 h-4 w-4" />
