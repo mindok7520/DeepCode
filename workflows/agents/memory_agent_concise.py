@@ -1428,7 +1428,7 @@ class ConciseMemoryAgent:
                 }
             ]
             messages.extend(summary_messages)
-            response = await client.chat_with_retry(
+            response = await client.chat_stream_with_retry(
                 messages=messages,
                 model=client.get_default_model(),
                 max_tokens=5000,

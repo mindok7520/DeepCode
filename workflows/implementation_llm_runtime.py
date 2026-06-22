@@ -64,7 +64,10 @@ async def call_provider_with_legacy_tools(
         provider_messages.append({"role": "system", "content": system_message})
     provider_messages.extend(validated_messages)
 
-    response = await provider.chat_with_retry(
+    # Codex/ChatGPT's Responses endpoint requires stream=true. The provider
+    # normalizes streamed tool calls back into the same LLMResponse shape, so
+    # the legacy implementation loop can consume it exactly like chat().
+    response = await provider.chat_stream_with_retry(
         messages=provider_messages,
         tools=prepare_provider_tool_definitions(tools),
         model=provider.get_default_model(),

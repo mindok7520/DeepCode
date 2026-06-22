@@ -612,14 +612,16 @@ class OpenAICompatProvider(LLMProvider):
         )
         instructions, input_items = convert_messages(sanitized_messages)
 
+        is_codex = bool(self._spec and self._spec.name == "codex")
         body: dict[str, Any] = {
             "model": model_name,
             "instructions": instructions or None,
             "input": input_items,
-            "max_output_tokens": max(1, max_tokens),
             "store": False,
             "stream": False,
         }
+        if not is_codex:
+            body["max_output_tokens"] = max(1, max_tokens)
 
         if self._supports_temperature(model_name, reasoning_effort):
             body["temperature"] = temperature
