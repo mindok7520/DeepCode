@@ -157,10 +157,19 @@ def validate_plan_text(text: str) -> dict[str, Any]:
         return result
 
     result["yaml_valid"] = True
-    section_source = parsed
+    section_sources = [parsed]
     nested = parsed.get("complete_reproduction_plan")
     if isinstance(nested, dict):
-        section_source = nested
+        section_sources.append(nested)
+    section_sources.extend(
+        value for value in parsed.values() if isinstance(value, dict)
+    )
+    section_source = max(
+        section_sources,
+        key=lambda source: sum(
+            1 for section in REQUIRED_PLAN_SECTIONS if section in source
+        ),
+    )
 
     yaml_missing = [
         section for section in REQUIRED_PLAN_SECTIONS if section not in section_source

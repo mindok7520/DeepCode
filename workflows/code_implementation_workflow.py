@@ -161,7 +161,7 @@ class CodeImplementationWorkflow:
 
             run_state = dict(self._last_run_state)
             inner_status = run_state.get("status", "unknown")
-            done = inner_status == "completed"
+            done = inner_status == "completed" and run_state.get("total_files", 0) > 0
             if done:
                 self.logger.info(
                     "Workflow execution successful (all files implemented)"
@@ -404,6 +404,22 @@ Requirements:
             progress_callback(
                 85,
                 f"Code implementation started: 0/{total_files} planned files completed",
+            )
+        if total_files == 0:
+            reason = "no planned files extracted from implementation plan"
+            self.logger.warning(reason)
+            elapsed_total = time.time() - start_time
+            self._last_run_state = {
+                "status": "incomplete",
+                "reason": reason,
+                "iterations": iteration,
+                "elapsed_seconds": elapsed_total,
+                "files_completed": 0,
+                "total_files": 0,
+                "unimplemented_files": [],
+            }
+            return await self._generate_pure_code_final_report_with_concise_agents(
+                iteration, elapsed_total, code_agent, memory_agent
             )
 
         # Log read tools configuration

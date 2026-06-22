@@ -622,14 +622,16 @@ class AgentRunner:
             messages,
             tools=spec.tools.get_definitions(),
         )
-        if hook.wants_streaming():
+        use_streaming = hook.wants_streaming() or self.provider.requires_streaming
+        if use_streaming:
 
             async def _stream(delta: str) -> None:
                 await hook.on_stream(context, delta)
 
+            on_content_delta = _stream if hook.wants_streaming() else None
             coro = self.provider.chat_stream_with_retry(
                 **kwargs,
-                on_content_delta=_stream,
+                on_content_delta=on_content_delta,
             )
         else:
             coro = self.provider.chat_with_retry(**kwargs)
@@ -653,6 +655,8 @@ class AgentRunner:
         retry_messages = list(messages)
         retry_messages.append(build_finalization_retry_message())
         kwargs = self._build_request_kwargs(spec, retry_messages, tools=None)
+        if self.provider.requires_streaming:
+            return await self.provider.chat_stream_with_retry(**kwargs)
         return await self.provider.chat_with_retry(**kwargs)
 
     @staticmethod

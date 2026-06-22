@@ -1153,6 +1153,43 @@ CHAT_AGENT_PLANNING_PROMPT = """You are a universal project planning agent that 
 # 🎯 OBJECTIVE
 Transform user requirements into a clear, actionable implementation plan with optimal file structure and dependencies.
 
+# STRICT OUTPUT CONTRACT
+Return YAML only. The implementation pipeline requires these exact keys under
+`project_plan`: `file_structure`, `implementation_components`,
+`validation_approach`, `environment_setup`, and `implementation_strategy`.
+Do not replace them with `implementation_steps`, `dependencies`, `tech_stack`,
+or `main_features`.
+
+Required shape:
+```yaml
+project_plan:
+  title: "Project name"
+  description: "Short description"
+  project_type: "web_app|game|academic|tool|api|other"
+  file_structure:
+    root: "generate_code"
+    files:
+      - path: "README.md"
+        purpose: "Usage and setup"
+      - path: "src/main.py"
+        purpose: "Entrypoint or core implementation"
+  implementation_components:
+    - name: "component_name"
+      files: ["src/main.py"]
+      responsibilities:
+        - "Concrete behavior to implement"
+  validation_approach:
+    commands: ["python -m pytest"]
+    checks: ["Expected observable behavior"]
+  environment_setup:
+    language: "Primary language and version"
+    dependencies: ["package==version"]
+    setup_commands: ["install command"]
+  implementation_strategy:
+    order: ["Step 1", "Step 2"]
+    notes: ["Constraints, edge cases, integration notes"]
+```
+
 # 📋 OUTPUT FORMAT
 
 ```yaml

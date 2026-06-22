@@ -358,14 +358,17 @@ class ConciseMemoryAgent:
             lines = self.initial_plan.split("\n")
             files = []
 
-            # Method 1: Try to extract from tree structure in file_structure section
+            # Method 1: Try to extract from structured YAML file_structure.files
+            files.extend(self._extract_from_yaml_file_structure())
+
+            # Method 2: Try to extract from tree structure in file_structure section
             files.extend(self._extract_from_tree_structure(lines))
 
-            # Method 2: If no files found, try to extract from simple list format
+            # Method 3: If no files found, try to extract from simple list format
             if not files:
                 files.extend(self._extract_from_simple_list(lines))
 
-            # Method 3: If still no files, try to extract from anywhere in the plan
+            # Method 4: If still no files, try to extract from anywhere in the plan
             if not files:
                 files.extend(self._extract_from_plan_content(lines))
 
@@ -384,6 +387,50 @@ class ConciseMemoryAgent:
         except Exception as e:
             self.logger.error(f"Failed to extract files from initial plan: {e}")
             return []
+
+    def _extract_from_yaml_file_structure(self) -> List[str]:
+        """Extract paths from YAML plans with file_structure.files[].path."""
+        try:
+            import yaml
+
+            from workflows.planning_runtime import extract_yaml_candidate
+
+            parsed = yaml.safe_load(extract_yaml_candidate(self.initial_plan))
+        except Exception:
+            return []
+
+        if not isinstance(parsed, dict):
+            return []
+
+        section_sources: List[Dict[str, Any]] = [parsed]
+        nested = parsed.get("complete_reproduction_plan")
+        if isinstance(nested, dict):
+            section_sources.append(nested)
+        section_sources.extend(
+            value for value in parsed.values() if isinstance(value, dict)
+        )
+
+        files: List[str] = []
+
+        def collect(node: Any) -> None:
+            if isinstance(node, dict):
+                path = node.get("path")
+                if isinstance(path, str):
+                    files.append(path)
+                for key in ("files", "children", "items"):
+                    if key in node:
+                        collect(node[key])
+                return
+            if isinstance(node, list):
+                for item in node:
+                    collect(item)
+
+        for source in section_sources:
+            file_structure = source.get("file_structure")
+            if isinstance(file_structure, (dict, list)):
+                collect(file_structure)
+
+        return files
 
     def _extract_from_tree_structure(self, lines: List[str]) -> List[str]:
         """

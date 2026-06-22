@@ -1270,6 +1270,10 @@ class OpenAICompatProvider(LLMProvider):
     def get_default_model(self) -> str:
         return self.default_model
 
+    @property
+    def requires_streaming(self) -> bool:
+        return bool(self._spec and self._spec.name == "codex")
+
     def _emit_observability(
         self,
         *,

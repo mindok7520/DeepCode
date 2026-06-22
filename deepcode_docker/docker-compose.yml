@@ -5,7 +5,7 @@ services:
       dockerfile: deepcode_docker/Dockerfile
     container_name: deepcode
     ports:
-      - "${DEEPCODE_BIND_ADDRESS:-127.0.0.1}:${DEEPCODE_HOST_PORT:-8000}:8000"
+      - "${DEEPCODE_BIND_ADDRESS:-127.0.0.1}:${DEEPCODE_HOST_PORT:-8010}:8000"
       # Codex/ChatGPT browser-login callback port.
       # OpenAI OAuth redirect URIs are registered for 1455/1457; do not use arbitrary ports.
       - "${DEEPCODE_BIND_ADDRESS:-127.0.0.1}:${CODEX_AUTH_CALLBACK_PORT:-1457}:${CODEX_AUTH_CALLBACK_PORT:-1457}"
